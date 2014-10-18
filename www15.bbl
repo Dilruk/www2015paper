@@ -1,0 +1,113 @@
+\begin{thebibliography}{10}
+
+\bibitem{Bun:2002:TEN:645962.674082}
+K.~K. Bun and M.~Ishizuka.
+\newblock {Topic Extraction from News Archive Using TF*PDF Algorithm}.
+\newblock In {\em Proceedings of the 3rd International Conference on Web
+  Information Systems Engineering}, WISE '02, pages 73--82, Washington, DC,
+  USA, 2002. IEEE Computer Society.
+
+\bibitem{Cataldi:2010:ETD:1814245.1814249}
+M.~Cataldi, L.~{Di Caro}, C.~Schifanella, U.~Torino, and L.~D. Caro.
+\newblock {Emerging topic detection on Twitter based on temporal and social
+  terms evaluation}.
+\newblock In {\em Proceedings of the Tenth International Workshop on Multimedia
+  Data Mining}, MDMKDD '10, pages 4:1----4:10, New York, NY, USA, 2010. ACM.
+
+\bibitem{Cipriani2014}
+L.~Cipriani.
+\newblock {Goal! Detecting the most important World Cup moments}.
+\newblock Technical report, Twitter, 2014.
+
+\bibitem{lanagan2011using}
+J.~Lanagan and A.~F. Smeaton.
+\newblock {Using twitter to detect and tag important events in live sports}.
+\newblock {\em Artificial Intelligence}, pages 542--545, 2011.
+
+\bibitem{Lee:2011:BDT:2009463.2009531}
+C.-H. Lee, C.-H. Wu, and T.-F. Chien.
+\newblock {BursT: a dynamic term weighting scheme for mining microblogging
+  messages}.
+\newblock In {\em Proceedings of the 8th international conference on Advances
+  in neural networks - Volume Part III}, ISNN'11, pages 548--557, Berlin,
+  Heidelberg, 2011. Springer-Verlag.
+
+\bibitem{Long:2011:TEE:2035562.2035636}
+R.~Long, H.~Wang, Y.~Chen, O.~Jin, and Y.~Yu.
+\newblock {Towards effective event detection, tracking and summarization on
+  microblog data}.
+\newblock In {\em Proceedings of the 12th international conference on Web-age
+  information management}, WAIM'11, pages 652--663, Berlin, Heidelberg, 2011.
+  Springer-Verlag.
+
+\bibitem{Nagarajan:2009:SAC:1692411.1692481}
+M.~Nagarajan, K.~Gomadam, A.~P. Sheth, A.~Ranabahu, R.~Mutharaju, and
+  A.~Jadhav.
+\newblock {Spatio-Temporal-Thematic Analysis of Citizen Sensor Data: Challenges
+  and Experiences}.
+\newblock In {\em Proceedings of the 10th International Conference on Web
+  Information Systems Engineering}, WISE '09, pages 539--553, Berlin,
+  Heidelberg, 2009. Springer-Verlag.
+
+\bibitem{osborne2014real}
+M.~Osborne, S.~Moran, R.~McCreadie, A.~{Von Lunen}, M.~Sykora, E.~Cano,
+  N.~Ireson, C.~Macdonald, I.~Ounis, Y.~He, and Others.
+\newblock {Real-Time Detection, Tracking, and Monitoring of Automatically
+  Discovered Events in Social Media}.
+\newblock {\em Association for Computational Linguistics}, 2014.
+
+\bibitem{scikit-learn}
+F.~Pedregosa, G.~Varoquaux, A.~Gramfort, V.~Michel, B.~Thirion, O.~Grisel,
+  M.~Blondel, P.~Prettenhofer, R.~Weiss, V.~Dubourg, J.~Vanderplas, A.~Passos,
+  D.~Cournapeau, M.~Brucher, M.~Perrot, and E.~Duchesnay.
+\newblock {Scikit-learn: Machine Learning in \{P\}ython}.
+\newblock {\em Journal of Machine Learning Research}, 12:2825--2830, 2011.
+
+\bibitem{Petrovic:2010:SFS:1857999.1858020}
+S.~Petrovi\'{c}, M.~Osborne, and V.~Lavrenko.
+\newblock {Streaming First Story Detection with Application to Twitter}.
+\newblock In {\em Human Language Technologies: The 2010 Annual Conference of
+  the North American Chapter of the Association for Computational Linguistics},
+  HLT '10, pages 181--189, Stroudsburg, PA, USA, 2010. Association for
+  Computational Linguistics.
+
+\bibitem{Petrovic:2010:ETC:1860667.1860680}
+S.~Petrovi\'{c}, M.~Osborne, and V.~Lavrenko.
+\newblock {The Edinburgh Twitter Corpus}.
+\newblock In {\em Proceedings of the NAACL HLT 2010 Workshop on Computational
+  Linguistics in a World of Social Media}, WSA '10, pages 25--26, Stroudsburg,
+  PA, USA, 2010. Association for Computational Linguistics.
+
+\bibitem{petrovic2013can}
+S.~Petrovic, M.~Osborne, R.~McCreadie, C.~Macdonald, I.~Ounis, and
+  L.~Shrimpton.
+\newblock {Can Twitter replace Newswire for breaking news?}
+\newblock In {\em Proceedings of the 7th International AAAI Conference on
+  Weblogs and Social Media}, volume 2011, 2013.
+
+\bibitem{Pring2012}
+C.~Pring.
+\newblock 100 social media statistics for 2012.
+\newblock {\em TheSocialSkinny.com}, Jan. 2012.
+
+\bibitem{Sankaranarayanan:2009:TNT:1653771.1653781}
+J.~Sankaranarayanan, H.~Samet, B.~E. Teitler, M.~D. Lieberman, and J.~Sperling.
+\newblock {TwitterStand: news in tweets}.
+\newblock In {\em Proceedings of the 17th ACM SIGSPATIAL International
+  Conference on Advances in Geographic Information Systems}, GIS '09, pages
+  42--51, New York, NY, USA, 2009. ACM.
+
+\bibitem{vasudevan2013twitter}
+V.~Vasudevan, J.~Wickramasuriya, S.~Zhao, and L.~Zhong.
+\newblock {Is Twitter a good enough social sensor for sports TV?}
+\newblock In {\em Pervasive Computing and Communications Workshops (PERCOM
+  Workshops), 2013 IEEE International Conference on}, pages 181--186. IEEE,
+  2013.
+
+\bibitem{Zhao2011}
+S.~Zhao, L.~Zhong, J.~Wickramasuriya, and V.~Vasudevan.
+\newblock {Human as Real-Time Sensors of Social and Physical Events: A Case
+  Study of Twitter and Sports Games}.
+\newblock {\em CoRR}, abs/1106.4, 2011.
+
+\end{thebibliography}
