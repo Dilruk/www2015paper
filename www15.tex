@@ -32,7 +32,14 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
-\usepackage{CJK,CJKspace,CJKpunct}
+\usepackage{fontspec} 
+\usepackage{xeCJK}
+\setCJKmainfont{BiauKai}
+
+%\usepackage{polyglossia}
+%\setmainlanguage{english}
+%\setotherlanguage{arabic}
+%\newfontfamily\arabicfont{Scheherazade}
 
 \graphicspath{ {./Figures/} }
 
@@ -348,6 +355,52 @@ From these values, we see our approach achieves a higher true positive rate but 
 \end{center}
 \end{figure*}
 
+\subsection{Earthquake Detection}
+
+Detecting sub-events within sporting competitions as described above is a useful task for areas like advertising or automated highlight generation, but a more interesting and worthwhile task would be to detect higher-impact events like natural disasters.
+The typical frequency-based approach is more difficult here as it is impossible to know what events are about to happen, and a list of target keywords to detect all such events would be long, leading to false positives.
+Our method could be highly beneficial here as one would not need to know the target language or other pre-specified information.
+Since Sakaki showed the feasibility of detecting earthquakes using Twitter, we pulled Twitter data for two earthquakes in Japan: a 7.1-magnitude quake off the coast of Honshu on 25 October 2013, and a 6.5-magnitude quake off the coast of Iwaki on 11 July 2014.
+
+To determine whether our approach could detect these earthquake events, we applied the classifier trained and tested for the sporting domain to these Twitter sets and tracked the frequency of the term ``earthquake'' simultaneously.
+Figures \ref{fig:2013Japan} and \ref{fig:2014Japan} show the frequencies for both methods for the 2013 and 2014 earthquakes respectively; the red dots indicate the earthquake times as reported by the United States Geological Survey (USGS).
+From these figures, one can see the token ``earthquake'' sees a significant increase in usage when the earthquake occurs, and our language-agnostic method experiences a similar increase at the same moment for both events.
+That is, both techniques identify the earthquake simultaneously.
+
+\begin{figure}[hbt]
+\begin{center}
+\includegraphics[width=3in]{./figures/2013-japan-quake.png}
+\caption{Honshu, Japan Earthquake - 25 October 2013}
+\label{fig:2013Japan}
+\end{center}
+\end{figure}
+
+\begin{figure}[hbtp]
+\begin{center}
+\includegraphics[width=3in]{./figures/2014-japan-quake.png}
+\caption{Iwaki, Japan Earthquake - 11 July 2014}
+\label{fig:2014Japan}
+\end{center}
+\end{figure}
+
+Given our method's success here, one can now ask what tokens we identified as bursting when the earthquakes occurred.
+Many of the tokens are in Japanese, and tokens at the peak of the earthquake events are shown in Table \ref{tab:japanTokens}.
+We also extracted tweets from our data that contain the highest number of these tokens for the given time period, a selection of which include, ``地震だあああああああああああああああああああああ,'' ``今回はチート使ってないから地震わからなかった,'' and ``地震だー.''
+Google Translate\footnote{http://translate.google.com} translates these tweets as ``Ah ah ah ah ah ah ah ah ah Aa's earthquake,'' ``I did not know earthquake because not using cheat this time,'' and ``Over's earthquake'' respectively.
+
+\begin{table}[htdp]
+\caption{Tokens Classified as Busting During Events}
+\begin{center}
+\begin{tabular}{|p{1.45in} | p{1.45in} |}
+\hline
+\multicolumn{1}{|c|}{\textbf{Match}} & \multicolumn{1}{|c|}{\textbf{Bursty Tokens}} \\ \hline
+Honshu, Japan -- 25 October 2013 & \c{c}dostum, 丈, 地, 報, 夫, 島, 怖, 揺, 構, 波, 注, 津, 源, 福, 長, 震 \\ \hline
+Iwaki, Japan -- 11 July 2014 & antojo, comida, sammy, び, ゆ, ビビ, 地, 報, 島, 怖, 急, 福, 緊, 臓, 警, 速, 震 \\ \hline
+\end{tabular}
+\end{center}
+\label{tab:japanTokens}
+\end{table}
+
 \section{Analysis}
 
 In comparing the baseline and language-agnostic techniques, it is important to understand the baseline provides little in the way of discovering previously unknown tokens or significant events that do not conform to a priori knowledge.
@@ -370,7 +423,7 @@ Table \ref{tab:burstyTokens} shows a selection of events from these matches and 
 \multicolumn{1}{|c|}{\textbf{Match}} & \multicolumn{1}{|c|}{\textbf{Event}} & \multicolumn{1}{|c|}{\textbf{Bursty Tokens}} \\ \hline
 Brazil v. Netherlands, 12 July 2014 & Netherlands' Van Persie scores a goal on a penalty at 3', 1-0 & 0-1, 1-0, 1:0, 1x0, card, goaaaaaaal, goal, gol, goool, holandaaaa, k\i{}rm\i{}z\i{}, pen, penal, penalti, p\^{e}nalti, persie, red \\ \hline
 Brazil v. Netherlands, 12 July 2014 & Brazil's Oscar get's a yellow card at 68' & dive, juiz, penalty, ref \\ \hline
-Germany v. Argentina, 13 July 2014 & Germany's G\"{o}tze scores a goal at 113', 1-0 & goaaaaallllllll, goalllll, godammit, goetze, gollllll, gooooool, gotze, gotzeeee, g\"{o}tze, nooo, yessss, \begin{CJK*}{UTF8}{zhsong}???\end{CJK*}, \begin{CJK}{UTF8}{zhsong}????????\end{CJK}  \\ \hline
+Germany v. Argentina, 13 July 2014 & Germany's G\"{o}tze scores a goal at 113', 1-0 & goaaaaallllllll, goalllll, godammit, goetze, gollllll, gooooool, gotze, gotzeeee, g\"{o}tze, nooo, yessss, ドイツ, لااااااا \\ \hline
 \end{tabular}
 \end{center}
 \label{tab:burstyTokens}
@@ -436,7 +489,8 @@ Finally, these advantages culminate in powerful tool for event \emph{discovery} 
 %ACKNOWLEDGMENTS are optional
 \section{Acknowledgments}
 This work made use of the Open Science Data Cloud (OSDC), which is an Open Cloud Consortium (OCC)-sponsored project. 
-The OSDC is supported in part by grants from Gordon and Betty Moore Foundation and the National Science Foundation and major contributions from OCC members like the University of Chicago. ?
+The OSDC is supported in part by grants from Gordon and Betty Moore Foundation and the National Science Foundation and major contributions from OCC members like the University of Chicago. 
+?
 
 %
 % The following two commands are all you need in the
