@@ -32,9 +32,14 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
-\usepackage{fontspec} 
-\usepackage{xeCJK}
-\setCJKmainfont{BiauKai}
+\usepackage{CJKutf8} 
+\usepackage{ucs} 
+\usepackage[encapsulated]{CJK} 
+\newcommand{\myfont}{gbsn}
+
+%\usepackage{fontspec} 
+%\usepackage{xeCJK}
+%\setCJKmainfont{BiauKai}
 
 %\usepackage{polyglossia}
 %\setmainlanguage{english}
@@ -410,7 +415,7 @@ That is, both techniques identify the earthquake simultaneously.
 
 Given our method's success here, one can now ask what tokens we identified as bursting when the earthquakes occurred.
 Many of the tokens are in Japanese, and tokens at the peak of the earthquake events are shown in Table \ref{tab:japanTokens}.
-We also extracted tweets from our data that contain the highest number of these tokens for the given time period, a selection of which include, ``地震だあああああああああああああああああああああ,'' ``今回はチート使ってないから地震わからなかった,'' and ``地震だー.''
+We also extracted tweets from our data that contain the highest number of these tokens for the given time period, a selection of which include, \begin{CJK}{UTF8}{\myfont}``地震だあああああああああああああああああああああ,'' ``今回はチート使ってないから地震わからなかった,'' and ``地震だー.'' \end{CJK}
 Google Translate\footnote{http://translate.google.com} translates these tweets as ``Ah ah ah ah ah ah ah ah ah Aa's earthquake,'' ``I did not know earthquake because not using cheat this time,'' and ``Over's earthquake'' respectively.
 
 \begin{table}[htdp]
@@ -419,8 +424,8 @@ Google Translate\footnote{http://translate.google.com} translates these tweets a
 \begin{tabular}{|p{1.45in} | p{1.45in} |}
 \hline
 \multicolumn{1}{|c|}{\textbf{Match}} & \multicolumn{1}{|c|}{\textbf{Bursty Tokens}} \\ \hline
-Honshu, Japan -- 25 October 2013 & \c{c}dostum, 丈, 地, 報, 夫, 島, 怖, 揺, 構, 波, 注, 津, 源, 福, 長, 震 \\ \hline
-Iwaki, Japan -- 11 July 2014 & antojo, comida, sammy, び, ゆ, ビビ, 地, 報, 島, 怖, 急, 福, 緊, 臓, 警, 速, 震 \\ \hline
+Honshu, Japan -- 25 October 2013 & \c{c}dostum, \begin{CJK}{UTF8}{\myfont} 丈, 地, 夫, 怖, 波, 注, 津, 源, 福, 震 \end{CJK} \\ \hline
+Iwaki, Japan -- 11 July 2014 & antojo, comida, sammy, \begin{CJK}{UTF8}{\myfont} び, ゆ, ビビ, 地, 怖, 急, 福, 警, 速, 震 \end{CJK} \\ \hline
 \end{tabular}
 \end{center}
 \label{tab:japanTokens}
@@ -449,7 +454,7 @@ Table \ref{tab:burstyTokens} shows a selection of events from these matches and 
 \multicolumn{1}{|c|}{\textbf{Match}} & \multicolumn{1}{|c|}{\textbf{Event}} & \multicolumn{1}{|c|}{\textbf{Bursty Tokens}} \\ \hline
 Brazil v. Netherlands, 12 July 2014 & Netherlands' Van Persie scores a goal on a penalty at 3', 1-0 & 0-1, 1-0, 1:0, 1x0, card, goaaaaaaal, goal, gol, goool, holandaaaa, k\i{}rm\i{}z\i{}, pen, penal, penalti, p\^{e}nalti, persie, red \\ \hline
 Brazil v. Netherlands, 12 July 2014 & Brazil's Oscar get's a yellow card at 68' & dive, juiz, penalty, ref \\ \hline
-Germany v. Argentina, 13 July 2014 & Germany's G\"{o}tze scores a goal at 113', 1-0 & goaaaaallllllll, goalllll, godammit, goetze, gollllll, gooooool, gotze, gotzeeee, g\"{o}tze, nooo, yessss, ドイツ, لااااااا \\ \hline
+Germany v. Argentina, 13 July 2014 & Germany's G\"{o}tze scores a goal at 113', 1-0 & goaaaaallllllll, goalllll, godammit, goetze, gollllll, gooooool, gotze, gotzeeee, g\"{o}tze, nooo, yessss, \begin{CJK}{UTF8}{\myfont} ドイツ\end{CJK} \\ \hline
 \end{tabular}
 \end{center}
 \label{tab:burstyTokens}
@@ -510,6 +515,7 @@ Secondly, our selection of classifiers used in our ensemble was based primarily 
 Thirdly, we specifically targeted short-term, instantaneous events, but it is possible that these same techniques could be applied at different levels of granularity (per hour or per day for instance) to detect events of larger scales; one could then apply Kleinberg's notion of event hierarchies across multiple temporal granularities and track different aspects of the same event.
 Additionally, an implicit assumption made in this work is that tokens that experience bursts at the same time are related in some way, which allows us to detect events using token frequency; this assumption has interesting consequences with regarding to language-agnostic topic detection.
 That is, one could cluster tokens with similar temporal signatures to identify topics across languages, which would otherwise be impossible if one were to rely solely on semantic similarity or would require applying machine translation to reduce all text in the stream to the same language.
+Finally, though this paper exclusively leverages data from Twitter's public stream, our techniques should be applicable to streams from other social networks as well, and how events burst on more media-centered networks like Flickr or Pinterest might reveal interesting photographic representations of an event.
 
 \section{Conclusions}
 \label{sect:conlusions}
@@ -528,7 +534,6 @@ Finally, these advantages culminate in powerful tool for event \emph{discovery} 
 \section{Acknowledgments}
 This work made use of the Open Science Data Cloud (OSDC), which is an Open Cloud Consortium (OCC)-sponsored project. 
 The OSDC is supported in part by grants from Gordon and Betty Moore Foundation and the National Science Foundation and major contributions from OCC members like the University of Chicago. 
-?
 
 %
 % The following two commands are all you need in the
