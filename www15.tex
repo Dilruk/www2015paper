@@ -31,6 +31,7 @@
 \usepackage[colorlinks=true,linkcolor=blue]{hyperref}	% For hyper links
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{bbm}
 
 \usepackage{CJKutf8} 
 \usepackage{ucs} 
@@ -151,7 +152,7 @@ To explore these questions, we propose a set of features for learning patterns o
 From these features, we then build an ensemble classifier to detect such bursting tokens from the Twitter stream.
 Then, using frequencies of these classified tokens, we demonstrate the feasibility of detecting new events of interest from unfiltered Twitter data.
 To ground this exploration, we start by modeling large sporting competitions as such events are both highly followed and occur regularly but also include unpredictable patterns of sub-events around points scored, fouls committed, and other occurrences of high interest.
-Experiments on several such sporting competitions illustrate how a language-agnostic, burst-based technique performs in comparison to baseline keyword-centric methods while simultaneously providing additional insight across languages and without text normalization or filtering.
+Experiments on several such sporting competitions illustrate how a language-agnostic, burst-centric technique performs in comparison to baseline keyword-centric methods while simultaneously providing additional insight across languages and without text normalization or filtering.
 Finally, we apply the models learned in the sporting domain to earthquake detection and show performance commensurate with existing research.
 
 % I hate these kinds of paragraphs
@@ -187,32 +188,120 @@ Vasudevan et al. used Twitter to identify events specific to American football a
 The common threads among all these approaches, however, are prior knowledge of event type and a pre-specified set of event keywords, which limits their applicability to international sports and other languages.
 }
 
-\section{Event Detection}
+\section{Techniques for Streaming Event Detection}
 \label{sect:methods}
 
-This paper's primary goal is to demonstrate the feasibility of language-agnostic, burst-centric techniques in detecting significant events.
-To that end, we must first define an event and a burst for our purposes.
+This paper's primary goal is to demonstrate the feasibility of detecting significant events from social media streams without relying on pre-specified queries and instead by identifying temporal bursts in token usage and analyzing their frequencies (we refer to this language-agnostic, burst-centric technique as LABurst).
+To this end, we compare LABurst's performance with that of a baseline token-based technique in detecting specific events within a variety of major sporting competitions.
+Then, we show applications outside the sports domain by applying LABurst to the task of detecting earthquakes from social media soon after they occur.
+This section's remainder defines these detection tasks, presents our experimental framework, details the data sources used, and outlines both the baseline technique and our LABurst method.
+
+\subsection{Problem Definition}
+
+Prior to any deep description on methods, we must first define an ``event'' and a ``burst'' within the context of this research.
 Though the term ``event'' is vague and overridden in many contexts, we can borrow from existing works like Allan et al.'s preliminary report on event detection and tracking and Raimond and Abdallah's Event Ontology \cite{Raimond2007,allan1998line}.
-From these sources, we define an event as ``something that happens at a particular time and place'' and can be composed of one or more brief ``sub-events'' that occur within the context of the larger event.
-For the purposes of this paper, however, we focus solely on detecting \emph{instantaneous} events and sub-events, those events that have a negligible amount of time between start and end.
+From these sources, one could define an event as ``something that happens at a particular time and place'' and can be composed of one or more brief ``sub-events'' that occur within the context of the larger event.
+For the purposes of this paper, however, we further restrict our definition to \emph{instantaneous} events and sub-events, or those events that occur at a specific place and time \emph{and} have a negligible amount of time between start and end.
+Examples of such instantaneous events include a point scored in a game, a particular explosion during some terrorist attack, or a particular tremor in an earthquake.
+These instantaneous events are interesting and harder to identify than their longer-term counterparts because one may not know tokens relevant to these brief events until the event is occurring, and by the time one can react, such a short-term event would already be over. 
 
 Corresponding to these brief events, we define a burst in a token's usage as a sudden increase in the frequency with which that token appears in a data stream.
 Like ``event,'' ``burst'' is also vague and can be applied at various levels of temporal granularity (seconds, minutes, hours, days, etc.).
 As an example, ``Obama'' would have experienced a burst in usage over a period of months leading into the 2008 Democratic Presidential Primary as President Obama was relatively unknown prior to that. 
 Tokens like ``earthquake'' or ``superbowl,'' on the other hand, would experience more drastic bursts in much shorter periods just around the time of a specific event.
-Again, for our purposes, we focus only on bursts that occur over the period of a minute (or just a few minutes). 
+We refer to such tokens as ``bursty.''
+Again, for our purposes, we focus only on bursts that occur within a minute (or just a few minutes). 
+It's worth noting here that bursts need not be symmetric; that is, a drastic uptick in frequency need not be followed by an equally dramatic dip in usage.
 
-These instantaneous events and bursts are interesting and are harder to identify than their longer-term counterparts because one may not know tokens relevant to these brief events until the event is occurring, and by the time one can react, such a short-term event would already be over.
+Now, if we let $E$ denote the set of all minutes $t$ in which an event occurs, then the indicator function $\mathbbm{1}_E(t)$ returns a $1$ for all times $t$ in which an event occurs, and $0$ for all other values of $t$. 
+We can now define the event detection task as constructing a function that approximates this indicator function $\mathbbm{1}_E(t)$.
+To account for possible lag in experiencing the event, typing out a message about the event, and the message actually posting to a social media server, we relax this task slightly by using the set $E'$ where, for all $t \in E$, $t, t+1, t+2 \in E'$.
+False positives/negatives and true positives/negatives follow in the normal way for some candidate function $\widehat{\mathbbm{1}_E}(t)$: a false positive is any time $t$ such that $\widehat{\mathbbm{1}_E}(t) = 1$ and ${\mathbbm{1}_E}(t) = 0$; likewise, a false negative is any $t$ such that $\widehat{\mathbbm{1}_E}(t) = 0$ and ${\mathbbm{1}_E}(t) = 1$.
+True positives/negatives then operate as expected.
+
+\subsection{Experimental Framework}
+
+Having established the vocabulary and tasks, we can now turn our attention to the actual mechanics of comparing our LABurst technique with the baseline, which primarily focuses on the sports context.
+Sporting competitions adhere well to our definition of event in that a sporting event has a well-defined place and time and can contain many unpredictable sub-events, such as scores, fouls, ejections, or other dramatic moments of play.
+Additionally, sporting events with large followings occur fairly often and with a good degree of regularity, greatly simplifying data collection.
+As such, our main experiment here is a comparative study in detecting a collection of events in three major sporting competitions: the 2013 Major League Baseball (MLB) World Series, 2014 National Football League (NFL) Super Bowl, and 2014 F\'{e}d\'{e}ration Internationale de Football Association (FIFA) World Cup.
+
+In each competition, we extract the times of four basic types of events (beginning of the game, end of the game, scores, and penalties) from existing blog posts, news articles, and social media data to construct game timelines.
+These events then comprise the ground truth against which we compare LABurst and the baseline.
+That is, positive instances of events are those minutes in which one of these events occurs, and negative instances are those minutes in which no event occurs.
+From this data, we generate receiver operating characteristic (ROC) curves for both LABurst and the baseline across each sport and then a composite ROC curve for all sports and compare the area under the curves for both methods.
+
+We then follow up this experiment with an additional test of whether LABurst can detect earthquake events similar to Sakaki's earthquake detection task.
+This investigation compares LABurst with the frequency of the keyword ``earthquake'' by applying LABurst's models learned in the first experiment to social media captured during two large earthquakes: the 7.1-magnitude quake off the coast of Honshu, Japan on 25 October 2013, and a 6.5-magnitude quake off the coast of Iwaki, Japan on 11 July 2014.
+
+\subsubsection{Data Collection and Additional Events}
+
+Though this work should apply to any social media stream, much of the development leverages Twitter since a large amount of research on this social network already exists, and data is relatively easy to acquire.
+Our data on the main sporting events used for evaluation (the World Series, Super Bowl, and World Cup) come from Twitter's 1\% public sample stream using source code from Jimmy Lin's twitter-tools library\footnote{https://github.com/lintool/twitter-tools}.
+
+For training LABurst, however, we require additional data to model bursty events, so we leverage two other Twitter data sources as well: an excerpt from the Edinburgh Twitter Corpus \cite{Petrovic:2010:ETC:1860667.1860680} and a selection of tweets from the Twitter Firehose covering Argentina in November of 2011.
+From these sources, we are able to generate a series of timestamped event timelines and related tokens for several additional sporting events as well: 
+%
+\begin{itemize}
+\item The 2010 NFL National Football Championship game, 
+\item Four premier league soccer games in November of 2012, %(Arsenal de Sarand\`{i} versus V\'{e}lez Sarsfield on November 3, Barcelona versus Mallorca on November 11, Argentina versus Saudi Arabia on November 14, and Argentina versus Brazil on November 22), 
+\item The National Hockey League's (NHL) 2014 playoffs, 
+\item The National Basketball Association's (NBA) 2014 playoffs, 
+\item The 2014 Kentucky Derby and Belmont Stakes races, 
+\item And a selection of early games from the 2014 FIFA World Cup.
+\end{itemize}
+
+\subsection{Baseline Event Detection}
+
+Inspired by existing work like that from Twitter's blog on detecting goals during the World Cup and others, we constructed a simple event detector that uses per-minute frequencies for a small set of target tokens \cite{Cipriani2014}. 
+These target tokens should be keywords that are likely to exhibit bursts in usage during related events, such as ``goal'' for goals in soccer/football or hockey or ``run'' for runs scored in baseball.
+Our baseline implementation also supports some rudimentary normalization to collapse modified words to their originals (e.g., ``goooooooaaaallll'' down to ``goal'').
+We know such a technique is effective because, as seen in the related work, many existing stream-based event detection systems use just such an approach to track specific types of events (``earthquake'' in Sakaki's work for example \cite{Sakaki:2010:EST:1772690.1772777}).
+
+At a high level, we compare the most recent count of these target tokens against the average count over the past few minutes, and if the difference between the two is above some threshold, we claim an event just occurred.
+More formally, we define the following: a time series $T$ segmented into $m$ minutes, a set of event-related seed tokens $S$ such that $s_i \in S$ is one of these event-related tokens, and a function \texttt{count($s_i, t_j$)} that returns the frequency of token $s_i$ in minute $t_j$.
+The frequency for a given minute $t_j$ is then defined by the function \texttt{freq($t_j$)} shown in Eq. \ref{eq:minuteFrequency}.
+We also construct a sliding window $w$ of size $|w|$ such that $w_k$ includes minutes $t_k$ to $t_{k+|w|-1}$ and define an average over this window as \texttt{avg($w_k$)}, shown in Eq. \ref{eq:windowAverage}.
+%
+\begin{equation}
+\label{eq:minuteFrequency}
+\text{freq}(t_j) = \sum_{i=0}^{|S|}\text{count}(s_i, t_j)
+\end{equation}
+\begin{equation}
+\label{eq:windowAverage}
+\text{avg}(w_k) = \frac{\sum_{j=k}^{k + |w| - 1}\text{freq}(t_j)}{|w|}
+\end{equation}
+%
+Given these functions, we take the difference $\Delta_k$ between the frequency at time $t_{k+|w|-1}$ and the average for window $w_k$ such that $\Delta_k = \;$\texttt{freq}$(t_{k+|w|-1}) - $ \texttt{avg($w_k$)}.
+If this difference exceeds some threshold $Z$ such that $\Delta_k > Z$, we say an event was detected at time $t_{k+|w|-1}$.
+
+Since our analysis covers three separate types of sporting competitions, the seed keyword list for this method must include tokens from the vocabulary of each. 
+We avoid separate keyword lists for each sport to provide a more even comparison to the general nature of our language-agnostic technique.
+The keywords for which we searched were as follows: ``goal'', ``gol'', ``golazo'', ``score'', ``foul'', ``penalty'', ``card'', ``red'', ``yellow'', ``touchdown'', ``td'', ``fieldgoal'', ``points'', ``run'', ``home'', ``homerun''.
+Additionally, the following regular expressions collapsed deliberately misspelled tokens down to their normal counterparts: ``g+o+a+l+'' $\rightarrow$``goal'', ``g+o+l+'' $\rightarrow$``gol'', ``g+o+l+a+z+o+'' $\rightarrow$``golazo'', ``sco+red?'' $\rightarrow$``score''.
 
 \subsection{Language-Agnostic Event Detection}
 
-As mentioned, existing research achieves acceptable performance in event detection by tracking frequencies for a small set of keywords that should experience bursts in usage when a real-world event occurs (e.g., ``goal'' should experience a burst when a player scores a goal in soccer/football).
-Rather than rely on these known tokens directly, we built a collection of such tokens across several sporting events and sports types and constructed a set of temporal features to model bursts.
-In each collection, we filter out messages flagged as retweets and disregard hashtags.
-These temporal features were built around a sliding window of several minutes with each window further divided into overlapping slices to construct a time series for each token.
-Feature vectors generated for each bursty token taken with those vectors from a set of known stop words allowed us to cast this bursty modeling task as a machine learning problem to delineate between bursting and non-bursting tokens.
-Finally, applying a threshold to the number of tokens classified as bursting per window allowed us to identify those windows in which significant real-world events occurred and supported extracting tokens that described those events.
-Each of these steps is detailed more thoroughly below.
+As mentioned, existing research achieves acceptable performance in streaming event detection by tracking frequencies for a small set of bursty keywords when a real-world event occurs.
+We extend such approaches by developing a technique for automatically identifying these bursty tokens and detecting based on those frequencies, which should hopefully provide more insight and additional flexibility.
+To this end, we constructed a set of temporal features to model the characteristics of a bursty token.
+Like other approaches, these temporal features were built around a sliding window of several minutes with each window further divided into overlapping slices as shown in Figure \ref{fig:windowSlices}.
+In this manner, we construct a windowed time series containing the most recent frequencies for each token, from which our features are generated.
+
+\begin{figure}[hbtp]
+\begin{center}
+\includegraphics[width=2in]{./figures/slidingWindowSlices.pdf}
+\caption{Sliding Window and Overlapping Slices}
+\label{fig:windowSlices}
+\end{center}
+\end{figure}
+
+From these features, we use AdaBoost to combine support vector machines (SVMs) and random forests (RFs) into an ensemble classifier to discriminate between bursty and non-bursty tokens.
+To cast this task as a machine learning problem, however, we require positive and negative token samples on which our classifier can be trained.
+While obtaining positive samples of bursty tokens is straightforward (we can at least use keywords from the baseline as well as event-specific tokens like names of scoring players or locations of events), determining negative samples is more difficult since it is hard to know all the events that may burst on Twitter at any moment.
+Fortunately, we can circumvent this difficulty by automatically classifying all stop words as negative, non-bursty tokens, and Python's NLTK\footnote{http://www.nltk.org} library provides convenient lists of stop words for several languages.
+
+It is important to note here that we perform this classification without any semantic or language-based filtering or normalization, and the only data we discard in this analysis are retweets and hashtags.
 
 \subsubsection{Temporal Features}
 
@@ -233,12 +322,12 @@ Beyond these existing features, we also developed a number of features that shou
 \item \textbf{BursT} Weight using a combination of a given token's actual frequency and expected token frequency \cite{Lee:2011:BDT:2009463.2009531}.
 \end{itemize}
 
-We normalized feature vectors into the range $[0, 1]$ to avoid biases from scale during classification by taking the maximum and minimum values for each feature in the current window.
+We also normalize each window's feature vectors into the range $[0, 1]$ to avoid biases from scale during classification by taking the maximum and minimum values for each feature in the current window.
 
 \subsubsection{Training the Ensemble Classifier}
 
 Discriminating between bursty tokens and stop words necessitated the use of a classification algorithm, and many different such algorithms exist.
-In particular, the Scikit-learn Python package provides implementations for support vector machines (SVMs) and random forests (RFs) as well as an implementation of the ensemble classifier AdaBoost \cite{scikit-learn}.
+In particular, the Scikit-learn Python package provides implementations for SVMs and RFs as well as an implementation of the ensemble classifier AdaBoost \cite{scikit-learn}.
 Both SVMs and RFs have tunable parameters to select before integrating into AdaBoost, however, so we developed a grid search strategy to select parameters based on the F1 scores on our training and testing data.
 
 For SVMs, we used the radial basis kernel, which has two parameters: cost $c$ and kernel coefficient $\gamma$.
@@ -267,57 +356,6 @@ We then applied the resulting AdaBoost classifier to all the training data and e
 
 Regarding sliding window and slice size, preliminary investigations seemed to illustrate a window size of ten minutes with a slice size of three minutes (each slice overlapped the next by two minutes) lead to acceptable results.
 
-\subsection{Baseline Event Detection}
-
-Inspired by existing work on event detection like that from Twitter's blog on detecting goals during the World Cup, the baseline we developed takes as input a set of keywords that should exhibit bursts in usage during related events, performs some rudimentary normalization to collapse modified words down to their originals (e.g., ``goooooooaaaallll'' down to ``goal''), and uses a sliding window to compare the current frequency of those keywords to their average frequency \cite{Cipriani2014}.
-If the frequency in the current window exceeds some threshold, which is set as some multiple of the average, we say an event was detected in that window.
-As with the language-agnostic method, we used a sliding window of ten minutes as well.
-
-Since our analysis covers three separate types of sporting competitions, the keyword list for this method must include tokens from the vocabulary of each. 
-We avoid separate keyword lists for each sport to provide a more even comparison to the general nature of our language-agnostic technique.
-
-The keywords for which we searched were as follows: ``goal'', ``gol'', ``golazo'', ``score'', ``foul'', ``penalty'', ``card'', ``red'', ``yellow'', ``touchdown'', ``td'', ``fieldgoal'', ``points'', ``run'', ``home'', ``homerun''.
-Additionally, the following regular expressions collapsed deliberately misspelled tokens down to their normal counterparts: ``g+o+a+l+'' $\rightarrow$``goal'', ``g+o+l+'' $\rightarrow$``gol'', ``g+o+l+a+z+o+'' $\rightarrow$``golazo'', ``sco+red?'' $\rightarrow$``score''.
-
-\section{Comparative Evaluation}
-
-Sporting competitions adhere well to our definition of event in that a sporting event has a well-defined place and time and can contain many sub-events, such as scores, fouls, ejections, or injuries, which make them prime candidates for our exploration.
-While our method requires no input regarding event type, the baseline accepts a set of keywords related to specific events of interest; since we focus on the sporting domain, these tokens might include ``goal,'' ``score,'' ``card,'' ``foul,'' or similar keywords that relate to interesting events.
-After training our method on a number of sporting events from the past five years, we use existing metrics to compare event detection performance in the 2013 World Series, 2014 Super Bowl, and 2014 World Cup.
-
-Though this work is general in nature, much of the development leverages the Twitter social network since a large amount of research on this network exists, and data is relatively easy to acquire.
-Specifically, this research leveraged three separate Twitter data sources: an excerpt from the Edinburgh Twitter Corpus \cite{Petrovic:2010:ETC:1860667.1860680}, a selection of tweets from the Twitter Firehose covering Argentina in November of 2011, and various days in 2013 and 2014 from the Twitter 1\% sample garden hose.
-
-To model bursty tokens across a wide variety of sporting events, we first needed ground truth with known tokens and timestamps that correspond to actual events within sporting competitions.
-We reviewed our collections of Twitter data and generated a series of timestamped events and related tokens for thirteen different sporting events: 
-
-\begin{itemize}
-\item The 2010 National Football Championship game, 
-\item Four premier league soccer games in November of 2012, %(Arsenal de Sarand\`{i} versus V\'{e}lez Sarsfield on November 3, Barcelona versus Mallorca on November 11, Argentina versus Saudi Arabia on November 14, and Argentina versus Brazil on November 22), 
-\item The final two games of the 2013 Major League Baseball (MLB) World Series, 
-\item The National Football League's (NFL) 2014 Super Bowl, 
-\item The National Hockey League's (NHL) 2014 playoffs, 
-\item The National Basketball Association's (NBA) 2014 playoffs, 
-\item The 2014 Kentucky Derby, 
-\item The 2014 Belmont Stakes, 
-\item And a selection of games from the 2014 F\'{e}d\'{e}ration Internationale de Football Association (FIFA) World Cup.
-\end{itemize}
-
-For each event, we used existing blog posts, news articles, and social media data to construct timelines for in-game events like scores, fumbles, and penalties, which were used as positive samples.
-For negative samples to differentiate between bursty and non-bursty tokens, it is difficult to acquire negative samples since we cannot know \emph{all} tokens that should be bursting on Twitter at a specific time.
-We can, however, assume that stop words should never experience bursts in usage; as such, we naively tagged English and Spanish stop words as negative samples.
-
-\subsection{Experimental Framework}
-
-We compared our language-agnostic classifier with the target-token frequency baseline on identifying four types of events: scores, penalties, game starts, and game ends.
-Evaluation used a test set comprised of the final two games of the 2013 MLB World Series, the 2014 NFL Super Bowl, and the 2014 FIFA World Cup.
-For the World Series, this set contained the final two games on 28 October and 30 October of 2013, between the Boston Red Sox and the St. Louis Cardinals, which contained four events of game starts/ends and ten instances of points scored.
-The 2014 Super Bowl occurred on 2 February 2014 and contained a game start, an end, and also ten instances of points scored.
-Our World Cup data covered the final two matches on 12 July and 13 July 2014 between the Netherlands and Brazil and Germany and Argentina respectively.
-Between these two matches, we had four game starts/ends, nine penalty cards issued, and four goals scored.
-
-For each approach described herein, we generate receiver operating characteristic (ROC) curves across each sport and then a combined ROC curve for all sports and compare the area under the curves for both methods.
-
 \section{Experimental Results}
 \label{sect:results}
 
@@ -325,19 +363,21 @@ To restate, the research question posed in this work is to determine whether a l
 We answer this question across three separate sporting events: the final two games of the 2013 MLB World Series, the 2014 NFL Super Bowl, and the final two matches of the 2014 FIFA World Cup.
 
 For each event, we generated ROC curves by varying a threshold parameter and calculating the true and false positive rates.
-In the baseline, pre-specified token approach, our threshold parameter varied the difference between the current frequency sum of the target keywords.
-For our language-agnostic, bursty method (``LA Bursty'' in the figures) , the ROC curve was generated by varying the minimum number of tweets a window must contain for an event to be detected.
+In the baseline approach, our threshold parameter controlled the minimum difference between current frequency and average frequency over the sliding window.
+For our LABurst method, the ROC curve was generated by varying the minimum number of tweets a window must contain for an event to be detected.
 We then compared the area under the curve (AUC) metric to determine the difference in performance between the two methods.
 Prior to presenting comprehensive results, we first present performance curves for each event type.
 
 \subsection{2013 World Series}
 
-For the 2013 World Series, the two tested techniques exhibited similar performance, with a difference of only 0.02 (the baseline with 0.76 and the language-agnostic bursty method with 0.74).
-Figure \ref{fig:roc2013WorldSeries} shows the how these two curves compare graphically, and we can see that neither curve truly dominates the other, and both perform better than random guessing.
+For the 2013 World Series between the Boston Red Sox and the St. Louis Cardinals, we explored only the final two games on 28 October and 30 October of 2013.
+These games contained fourteen events of interest: four game starts/ends and ten instances of points scored.
+The two tested techniques exhibited similar performance, with a difference of only 0.02 (the baseline with 0.76 and the language-agnostic bursty method with 0.74).
+Figure \ref{fig:roc2013WorldSeries} shows the how these two curves compare graphically, and we can see that neither curve completely dominates the other, and both perform better than random guessing.
 
 \begin{figure}[hbtp]
 \begin{center}
-\includegraphics[width=3.25in]{./figures/roc_2013_WorldSeries.png}
+\includegraphics[width=2.5in]{./figures/roc_2013_WorldSeries.png}
 \caption{ROC Curves for the 2013 World Series}
 \label{fig:roc2013WorldSeries}
 \end{center}
@@ -345,12 +385,13 @@ Figure \ref{fig:roc2013WorldSeries} shows the how these two curves compare graph
 
 \subsection{2014 Super Bowl}
 
-For the 2013 World Series, the two tested techniques exhibited similar performance, with a difference of only 0.02 (the baseline with 0.76 and the language-agnostic bursty method with 0.74).
-Figure \ref{fig:roc2014SuperBowl} shows the how these two curves compare graphically, and we can see that neither curve truly dominates the other, and both perform better than random guessing.
+Since the 2014 Super Bowl was a single-day competition, we covered the entire game between the Seatlle Seahawks and the Denver Broncos on 2 February 2014, which contained twelve events: a game start, an end, and ten instances of points scored.
+The difference between the two mechanisms (shown in Figure \ref{fig:roc2014SuperBowl}) is more pronounced with a difference in AUC near 0.1, with the baseline performing better.
+LABurst exhibited a much higher false-positive rate in comparison to the baseline, which may be explained later in \ref{sect:eventDiscovery}.
 
 \begin{figure}[hbtp]
 \begin{center}
-\includegraphics[width=3.25in]{./figures/roc_2013_WorldSeries.png}
+\includegraphics[width=2.5in]{./figures/roc_2014_SuperBowl.png}
 \caption{ROC Curves for the 2014 Super Bowl}
 \label{fig:roc2014SuperBowl}
 \end{center}
@@ -358,12 +399,13 @@ Figure \ref{fig:roc2014SuperBowl} shows the how these two curves compare graphic
 
 \subsection{2014 World Cup}
 
-For the 2013 World Series, the two tested techniques exhibited similar performance, with a difference of only 0.02 (the baseline with 0.76 and the language-agnostic bursty method with 0.74).
-Figure \ref{fig:roc2014WorldCup} shows the how these two curves compare graphically, and we can see that neither curve truly dominates the other, and both perform better than random guessing.
+As with the World Series, our World Cup analysis covered the final two matches of tournament: the 12 July match between the Netherlands and Brazil for third place, and the final match on 13 July between Germany and Argentina for first place.
+These matches contained the most events with a total of seventeen: four game starts/ends, nine penalty cards issued, and four goals scored.
+Unlike the World Series and Super Bowl, however, the difference between the baseline and LABurst shows our LABurst method actually outperforms the baseline here with a difference in AUC of approximately 0.05.
 
 \begin{figure}[hbtp]
 \begin{center}
-\includegraphics[width=3.25in]{./figures/roc_2014_WorldCup.png}
+\includegraphics[width=2.5in]{./figures/roc_2014_WorldCup.png}
 \caption{ROC Curves for the 2014 World Cup}
 \label{fig:roc2014WorldCup}
 \end{center}
@@ -399,7 +441,7 @@ That is, both techniques identify the earthquake simultaneously.
 
 \begin{figure}[hbt]
 \begin{center}
-\includegraphics[width=3in]{./figures/2013-japan-quake.png}
+\includegraphics[width=2.5in]{./figures/2013-japan-quake.png}
 \caption{Honshu, Japan Earthquake - 25 October 2013}
 \label{fig:2013Japan}
 \end{center}
@@ -407,7 +449,7 @@ That is, both techniques identify the earthquake simultaneously.
 
 \begin{figure}[hbtp]
 \begin{center}
-\includegraphics[width=3in]{./figures/2014-japan-quake.png}
+\includegraphics[width=2.5in]{./figures/2014-japan-quake.png}
 \caption{Iwaki, Japan Earthquake - 11 July 2014}
 \label{fig:2014Japan}
 \end{center}
@@ -471,6 +513,7 @@ Since these words are semantically similar but syntactically dissimilar, typical
 Instead, capturing these words in the baseline would require a pre-specific keyword list in all possible languages or the inclusion of an expensive machine translation system that was also capable of normalizing within different languages (to collapse ``goool'' down to ``gol'' for example).
 
 \subsection{Undocumented Event Discovery}
+\label{sect:eventDiscovery}
 
 One particular weakness present in the baseline is that it is unable to capture unexpected events or events that do not conform to the keyword list.
 This deficiency means analysts might miss significant events within these competitions, especially if they are not directly related to scores or penalties, such as Uruguay's Luis Suarez's biting the Italy's Giorgio Chiellini during a World Cup match on 24 June since no foul was called at the time.

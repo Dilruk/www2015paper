@@ -1,5 +1,12 @@
 \begin{thebibliography}{10}
 
+\bibitem{allan1998line}
+J.~Allan, R.~Papka, and V.~Lavrenko.
+\newblock {On-line new event detection and tracking}.
+\newblock In {\em Proceedings of the 21st annual international ACM SIGIR
+  conference on Research and development in information retrieval}, pages
+  37--45. ACM, 1998.
+
 \bibitem{Bun:2002:TEN:645962.674082}
 K.~K. Bun and M.~Ishizuka.
 \newblock {Topic Extraction from News Archive Using TF*PDF Algorithm}.
@@ -89,6 +96,17 @@ S.~Petrovic, M.~Osborne, R.~McCreadie, C.~Macdonald, I.~Ounis, and
 C.~Pring.
 \newblock 100 social media statistics for 2012.
 \newblock {\em TheSocialSkinny.com}, Jan. 2012.
+
+\bibitem{Raimond2007}
+Y.~Raimond and S.~Abdallah.
+\newblock {The Event Ontology}, 2007.
+
+\bibitem{Sakaki:2010:EST:1772690.1772777}
+T.~Sakaki, M.~Okazaki, and Y.~Matsuo.
+\newblock {Earthquake shakes Twitter users: real-time event detection by social
+  sensors}.
+\newblock In {\em Proceedings of the 19th international conference on World
+  wide web}, WWW '10, pages 851--860, New York, NY, USA, 2010. ACM.
 
 \bibitem{Sankaranarayanan:2009:TNT:1653771.1653781}
 J.~Sankaranarayanan, H.~Samet, B.~E. Teitler, M.~D. Lieberman, and J.~Sperling.
