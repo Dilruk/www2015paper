@@ -149,7 +149,7 @@ Given the ``unreasonable effectiveness of data'' and the shear volume of social 
 This paper pursues such an alternative avenue for unfiltered event detection by disregarding language semantics and focusing on the temporal patterns that comprise breaking news and high-impact events.
 
 To explore these questions, we propose a set of features for learning patterns of increased token usage, or bursts, in the Twitter stream in response to key moments in large sporting competitions.
-From these features, we then build an ensemble classifier to detect such bursting tokens from the Twitter stream.
+From these features, we then build an ensemble classifier to detect such bursting tokens from messages in the Twitter stream, called ``tweets.''
 Then, using frequencies of these classified tokens, we demonstrate the feasibility of detecting new events of interest from unfiltered Twitter data.
 To ground this exploration, we start by modeling large sporting competitions as such events are both highly followed and occur regularly but also include unpredictable patterns of sub-events around points scored, fouls committed, and other occurrences of high interest.
 Experiments on several such sporting competitions illustrate how a language-agnostic, burst-centric technique performs in comparison to baseline keyword-centric methods while simultaneously providing additional insight across languages and without text normalization or filtering.
@@ -163,30 +163,83 @@ Finally, we apply the models learned in the sporting domain to earthquake detect
 \section{Related Work}
 \label{sect:relatedWork}
 
-{\color{red}
-With social media's explosive popularity and the ease with which users can post information using a variety of means (mobile applications, the Web, or via text message), the huge volumes of data now being published has proven useful for a variety of purposes, the most popular of which concentrates on event detection and summarization.
-In 2009, researchers began transferring expertise on event detection from traditional news and blog data to social network-based microblogs like Twitter.
-Nagarajan et al. adapted existing spatio-temporal analysis to their Twitris framework to identify and localize specific themes according to region \cite{Nagarajan:2009:SAC:1692411.1692481}.
-Twitris relies on Google's ``Insights for Search'' to identify trending keywords for a given location or time interval; these keywords are fed into Twitter's search API to bootstrap data collection.
-Twitris clusters these trending tokens to identify thematically similar content and present groups of related tokens as retrospective event ``storylines.''
-Though Twitris and similar systems \cite{Sankaranarayanan:2009:TNT:1653771.1653781,Long:2011:TEE:2035562.2035636} are powerful, their event summaries are too coarse to detect individual occurrences in sports and rely heavily on traditional media to bootstrap the detection process.
+Detecting events by leveraging digital media has fascinated researchers for nearly twenty years now, with new methods, breakthroughs, and technologies emerging every few years.
+As a result, this subfield has experienced a series of evolutionary steps, each of which integrates the latest available techniques and data sources, starting from early digital newsprint to blogs and now to social media.
+Early stages of this research started in the mid-nineties, however, with the Defense Advanced Research Projects Agency's (DARPA) Topic Detection and Tracking (TDT) initiative \cite{Allan98topicdetection}.
+By the late nineties, DARPA's programs demonstrated feasibility in detecting new topics from traditional media sources, but as Allan, Papka, and Lavrenko discussed in 1998, the utility and limitations of these approaches required additional work to see real success \cite{allan1998line}.
+Even in that early work, Allan et al. were already discussing the tradeoffs of using pre-defined keyword sets and event classes when detecting new events, an issue researchers have begun to address only recently.
+It is also important to note that, at this nascent stage, topic detection and event detection were relatively synonymous in the literature.
 
-Cataldi et al. take a different approach in their 2010 paper on detecting emerging topics in Twitter by leveraging ``user authority'' as calculated using the well-known Google PageRank algorithm \cite{Cataldi:2010:ETD:1814245.1814249}.
-Though this approach might be useful for identifying authoritative sources like sports journalists or official team Twitter accounts, our approach forgoes user characteristics.
-Instead, we prioritize token-centric burst information over  a user's network influence since only a limited number of fans tweeting about some event may be authoritative in the network.
+Though this early research focused primarily on topic detection from newsprint and traditional media sources, Kleinberg's 2002 paper altered the TDT landscape by applying topic detection to non-traditional data sources like his personal email archive and by introducing what appears to be the first real treatment of burst analysis in ``document streams that arrive continuously over time'' rather than  static collections \cite{Kleinberg:2002:BHS:775047.775061}. 
+Despite this introduction of the streaming context, Kleinberg's methods cast topic detection as a retrospective optimization problem in which each token was assigned a set of states describing its usage.
+From this description, Kleinberg was able to leverage existing work on hidden Markov models (HMMs) to find optimal sequences of high usage states, or bursts, and low usage states from which he could detect events (and even construct arbitrarily complex burst states to develop event hierarchies).
+Kleinberg's examination here laid much of the foundation for the focus on topic bursts that characterized much of the proceeding research in this area.
 
-Work by Petrovi\'{c}, Osborne, et al. is perhaps the most similar system to ours \cite{Petrovic:2010:SFS:1857999.1858020,petrovic2013can,osborne2014real}.
-This system, called ReDites, relies on locality sensitive hashing (LSH) to enable near real-time tweet clustering for event detection but is restricted to only for English-language tweets.
-LSH allows for fast similarity calculations to determine a message's ``nearest neighbor,'' which enables high-speed clustering for theme/event generation.
-Once ReDites constructs these themes, it can perform a retrospective analysis to identify the first story related to a given theme.
-Our approach has a language flexibility that ReDites lacks, and we focus more on identifying events as they occur rather than retrospectively, but ReDites's ability to handle many Twitter messages at an extremely high rate is an impressive benchmark for which we are striving for future versions.
+Following from Kleinberg's work and the increasing size of digital content creation on the Internet, several new approaches to topic detection emerged.
+Notably, topic detection divided into two distinct tasks: identifying topics in data via algorithms like Latent Dirichlet Allocation (LDA) \cite{blei2003latent} and detecting events from text.
+Since our research focuses on events rather than topics, early event detection work like that from Fung et al. in 2005 is especially interesting \cite{Fung:2005:PFB:1083592.1083616}.
+Fung et al. extended Kleinberg's burst detection scheme by identifying bursty keywords from digital newspapers and clustering these keywords into groups to identify bursty events, which displayed success in identifying trending events in an English-language newspaper from Hong Kong.
 
-Only recently has event detection specific to sports gathered more attention.
-Lanagan and Smeaton tried to align changes in tweet volume of a filtered Twitter stream with an annotated audio/video analysis and showed that bursts in Twitter usage co-occurred with high-impact events\cite{lanagan2011using}.
-Zhao et al. used a lexicon of American football-related terms to refine the Twitter stream and detect events during the 2010-2011 NFL football season within 40 seconds \cite{Zhao2011}.
-Vasudevan et al. used Twitter to identify events specific to American football and found that events could be detected within a few minutes of the actual event \cite{vasudevan2013twitter}.
-The common threads among all these approaches, however, are prior knowledge of event type and a pre-specified set of event keywords, which limits their applicability to international sports and other languages.
-}
+Along with new interest in burst-centric research, another important trend starting around this time was the integration of additional data sources beyond traditional newsprint, most significant of which was the increased usage of blog content.
+Blogs offered direct insight into the social consciousness in a way that was previously unavailable via traditional media since blogs include a great deal of social information regarding the author.
+Zhao et al. took advantage of this additional social information in their 2007 work on flow-based event detection from 2007 \cite{Zhao2007}.
+This work viewed blog dynamics and information flow within them as a graph problem in which nodes represent ``social actors'' and edges represent information exchanges between them.
+By integrating this social data with the textual and temporal techniques described above, Zhao et al. were able to identify events with high accuracy in two social datasets: the Enron email dataset and the Dailykos dataset.
+Similarly, Bansal's group from the University of Toronto developed the Blogscope project to identify trending and bursty keywords by location as well as time across the entire ``blogosphere'' \cite{Bansal:2007:BSO:1325851.1326028,Bansal:2007:BSA:1242572.1242802}.
+
+\subsection{Event Detection in Microblogs}
+
+Soon after the research community began experimenting with alternative media sources like blogs, microblogging platforms began their rise in popularity.
+These microblogging platforms include websites like Twitter and Sina Weibo and are characterized by constrained post sizes and broadcast information dissemination (e.g., Twitter constrains user posts to 140 characters).
+A great deal of research exists that explores how the data posted to these networks can be leveraged for social good projects like event detection.
+It is worth noting the majority of this research makes use of data from Twitter's network, likely because Twitter data is relatively easy to acquire using Twitter's APIs.
+
+One of the most well-known works in detecting events from microblogs is Sakaki, Okazaki, and Matsuo's 2010 paper on detecting earthquakes in Japan using Twitter \cite{Sakaki:2010:EST:1772690.1772777}.
+In their paper, Sakaki et al. show that not only can one detect earthquakes on Twitter but also that it can be done simply by tracking frequencies of earthquake-related tokens, and surprisingly, doing so can outperform geological earthquake detection tools since digital data propagates faster than tremor waves in the Earth's crust.
+Though this research is limited in that it requires pre-specified tokens and is highly domain- and location-specific (Japan has a high density of Twitter users, so earthquake detection may perform less well in areas with fewer Twitter users), it demonstrates a significant use case and the potential of such applications.
+
+Along with the research of Sakaki et al., 2010 saw two other relevant papers: Lin et al.'s construction of a probabilistic popular event tracker (PET) \cite{Lin:2010:PSM:1835804.1835922} and Petrovi\'{c}, Osborne, and Lavrenko's application of locality-sensitive hashing (LSH) for detecting first-story tweets from Twitter streams \cite{Petrovic:2010:SFS:1857999.1858020}.
+Lin's work is interesting for a number of reasons: first, it seems to be one of the first treatments to leverage probabilistic models to discriminate between common tokens and informational tokens by assigning them to either a background or topical language model, whereas other methods often relied on pre-specified lists of stop words.
+Secondly, Lin's integration of social and structural features into the event detection task demonstrated that real performance enhancements can be gained through non-textual features.
+Thirdly, their paper relates well to Kleinberg's initial work on bursty topic detection by illustrating how his state machine approach is a degenerate case of the PET model.
+Like the majority of its contemporary systems, however, PET also requires seeding with a pre-specified list of tokens to guide its event detection.
+
+Petrovi\'{c}'s research on clustering in Twitter avoids the need for seeding keywords by instead focusing on the practical considerations of clustering large streams of data quickly.
+That is, rather than construct a probabilistic mixture model for each token, Petrovi\'{c} focuses on methods for clustering tweets that contain similar tokens into topical clusters.
+While typical clustering algorithms require distance calculations for all pairwise messages, LSH facilitates rapid clustering at the scale necessary to support event detection in Twitter streams by restricting the number of tweets compared to only those within some threshold of similarity.
+Once these clusters are generated, Petrovi\'{c} was able to track their growth over time to determine impact and find the ``first story'' or tweet for a given event.
+This research was originally unique in that it was one of the early methods that did not require pre-specified seed tokens for detecting events and has been very influential in the field, resulting in a number of additional publications to demonstrate its utility in breaking news and for high-impact crisis events \cite{Petrovic:2012:UPI:2382029.2382072,osborne2014real,petrovic2013can,6601695}.
+That being said, a key weakness in Petrovi\'{c}'s work is its reliance on semantic similarity between tweets, which limits its ability to operate in mixed-language environments.
+
+Similar to Petrovi\'{c}, Weng and Lee's 2011 paper on EDCoW, short for Event Detection with Clustering of Wavelet-based Signals, is also able to identify events from Twitter without seed keywords \cite{weng2011event}.
+After stringent filtering (removing stop words, common words, and non-English tokens), EDCoW uses wavelet analysis to isolate and identify bursts in token usage as a sliding window advances along the social media stream.
+Highly significant bursts are then cast as a cross-correlation matrix against which a graph partitioning algorithm is run to construct topical clusters from bursty tokens.
+Besides the heavy filtering of the input data, this approach exhibits notable similarities with the language-agnostic method described herein with its reliance on bursts to detect event-related tokens; the methods described in Weng and Lee's paper, however, operate in a more retrospective manner, focusing on the level of daily news rather than breaking event detection on which our research focuses.
+Becker, Naaman, and Gravano's 2011 paper on identifying events in Twitter also fall under this label of retrospective analysis, but their findings also demonstrate reasonable performance in identifying events in Twitter by leveraging classification tasks to separate tweets into those on ``real-world events'' versus non-event messages \cite{becker2011beyond-tr,becker2011beyond}.
+Similarly, Diao et al. also employ a retrospective technique to separate tweets into global, event-related topics and personal topics \cite{diao2012finding}.
+
+Beyond these relatively general efforts, several domain-specific methods exist that target event detection in sporting events \cite{vasudevan2013twitter,Zhao2011,lanagan2011using}.
+Lanagan and Smeaton's work, however, is of particular interest because it relies almost solely on analyzing the per-second volume of messages in Twitter \cite{lanagan2011using}.
+Though relatively naive, this frequency-centric approach is able to detect large bursts on Twitter in high-impact events like the NFL's Super Bowl and can do so without reliance on complex linguist analysis.
+Additionally, such a straightforward approach works very well in a streaming context as very little information must be kept in memory.
+Unfortunately, two main disadvantages exist with this technique: first, detecting a burst would provide evidence of an event, but it would be difficult to gain insight into what that event actually is without additional processing.
+Secondly, as described in their paper, a pure volumetric approach can be hampered by limitations on Twitter's public stream, which has an upper limit on the number of messages per minute one can capture.
+The approach we describe below addresses both of these deficiencies.
+
+Finally, the most recent work that shares the most in common with the our research is the 2013 paper by Xie et al. on TopicSketch \cite{xie2013topicsketch}.
+Like us, TopicSketch's authors seek to perform real-time event detection from Twitter streams ``without pre-defined topical keywords'' by maintaining acceleration features across three levels of granularity: individual token, bigram, and total stream.
+As with Petrovi\'{c}'s use of LSH, Xie et al. leverage ``sketches'' and dimensionality reduction to facilitate the event detection task and also relies on language-specific similarities, but Xie et al. also focus only on tweets from Singapore rather than the worldwide stream.
+In contrast, our approach is differentiated primarily in its language-agnosticism and its use of the unfiltered stream from Twitter's global network.
+
+\subsection{Twitter's Trending Topics}
+
+Given our focus on Twitter and the data provided by their streaming sources, it is worth taking a moment to differentiate our techniques from Twitter's existing ``Trending Topics'' offering.
+When a user visit's Twitter's website, she is immediately greeted with her personal feed as well as a listing of trending topics for her city, country, worldwide, or nearly any location she chooses.
+These topics offer a great deal of insight into the current popular topics on Twitter, but the main differentiating factor we try to identify is that these popular topics are not necessarily connected to specific events that we target.
+Rather, popular memetic content like ``\#MyLovelifeInMoveTitles'' often appear on the list of trending topics.
+Additionally, Twitter monetizes these trending topics as a form of advertising \cite{Sydell2011}.  
+These trending topics also can be more high-level than the point events that we seek to identify: for instance, during the World Cup, particular matches or the tournament in general were identified as trending topics by Twitter, but individual events like goals or penalty cards in those matches were not.
+It should be clear then that Twitter's trending topics serves a different purpose than the streaming event detection described herein.
 
 \section{Techniques for Streaming Event Detection}
 \label{sect:methods}

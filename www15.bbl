@@ -1,11 +1,49 @@
 \begin{thebibliography}{10}
 
+\bibitem{Allan98topicdetection}
+J.~Allan, J.~Carbonell, G.~Doddington, J.~Yamron, Y.~Yang, J.~P. J.~A. Umass,
+  B.~A. Cmu, D.~B. Cmu, A.~H. A.~B. Cmu, R.~B. Cmu, I.~C. Dragon, G.~D. Darpa,
+  J.~L. Cmu, V.~L. Umass, X.~L. Cmu, S.~L. Dragon, P.~V.~M. Dragon, R.~P.
+  Umass, T.~P. Cmu, and M.~S. Umass.
+\newblock {Topic Detection and Tracking Pilot Study Final Report}.
+\newblock In {\em In Proceedings of the DARPA Broadcast News Transcription and
+  Understanding Workshop}, pages 194--218, 1998.
+
 \bibitem{allan1998line}
 J.~Allan, R.~Papka, and V.~Lavrenko.
 \newblock {On-line new event detection and tracking}.
 \newblock In {\em Proceedings of the 21st annual international ACM SIGIR
   conference on Research and development in information retrieval}, pages
   37--45. ACM, 1998.
+
+\bibitem{Bansal:2007:BSO:1325851.1326028}
+N.~Bansal and N.~Koudas.
+\newblock {BlogScope: a system for online analysis of high volume text
+  streams}.
+\newblock In {\em Proceedings of the 33rd international conference on Very
+  large data bases}, VLDB '07, pages 1410--1413. VLDB Endowment, 2007.
+
+\bibitem{Bansal:2007:BSA:1242572.1242802}
+N.~Bansal and N.~Koudas.
+\newblock {BlogScope: spatio-temporal analysis of the blogosphere}.
+\newblock In {\em Proceedings of the 16th international conference on World
+  Wide Web}, WWW '07, pages 1269--1270, New York, NY, USA, 2007. ACM.
+
+\bibitem{becker2011beyond}
+H.~Becker, M.~Naaman, and L.~Gravano.
+\newblock {Beyond Trending Topics: Real-World Event Identification on Twitter}.
+\newblock {\em ICWSM}, 11:438--441, 2011.
+
+\bibitem{becker2011beyond-tr}
+H.~Becker, M.~Naaman, and L.~Gravano.
+\newblock {Beyond Trending Topics: Real-World Event Identification on Twitter -
+  Technical Report}.
+\newblock 2011.
+
+\bibitem{blei2003latent}
+D.~M. Blei, A.~Y. Ng, and M.~I. Jordan.
+\newblock {Latent dirichlet allocation}.
+\newblock {\em the Journal of machine Learning research}, 3:993--1022, 2003.
 
 \bibitem{Bun:2002:TEN:645962.674082}
 K.~K. Bun and M.~Ishizuka.
@@ -14,17 +52,30 @@ K.~K. Bun and M.~Ishizuka.
   Information Systems Engineering}, WISE '02, pages 73--82, Washington, DC,
   USA, 2002. IEEE Computer Society.
 
-\bibitem{Cataldi:2010:ETD:1814245.1814249}
-M.~Cataldi, L.~{Di Caro}, C.~Schifanella, U.~Torino, and L.~D. Caro.
-\newblock {Emerging topic detection on Twitter based on temporal and social
-  terms evaluation}.
-\newblock In {\em Proceedings of the Tenth International Workshop on Multimedia
-  Data Mining}, MDMKDD '10, pages 4:1----4:10, New York, NY, USA, 2010. ACM.
-
 \bibitem{Cipriani2014}
 L.~Cipriani.
 \newblock {Goal! Detecting the most important World Cup moments}.
 \newblock Technical report, Twitter, 2014.
+
+\bibitem{diao2012finding}
+Q.~Diao, J.~Jiang, F.~Zhu, and E.-P. Lim.
+\newblock {Finding bursty topics from microblogs}.
+\newblock In {\em Proceedings of the 50th Annual Meeting of the Association for
+  Computational Linguistics: Long Papers-Volume 1}, pages 536--544. Association
+  for Computational Linguistics, 2012.
+
+\bibitem{Fung:2005:PFB:1083592.1083616}
+G.~P.~C. Fung, J.~X. Yu, P.~S. Yu, and H.~Lu.
+\newblock {Parameter free bursty events detection in text streams}.
+\newblock In {\em Proceedings of the 31st international conference on Very
+  large data bases}, VLDB '05, pages 181--192. VLDB Endowment, 2005.
+
+\bibitem{Kleinberg:2002:BHS:775047.775061}
+J.~Kleinberg.
+\newblock {Bursty and hierarchical structure in streams}.
+\newblock In {\em Proceedings of the eighth ACM SIGKDD international conference
+  on Knowledge discovery and data mining}, KDD '02, pages 91--101, New York,
+  NY, USA, 2002. ACM.
 
 \bibitem{lanagan2011using}
 J.~Lanagan and A.~F. Smeaton.
@@ -39,22 +90,13 @@ C.-H. Lee, C.-H. Wu, and T.-F. Chien.
   in neural networks - Volume Part III}, ISNN'11, pages 548--557, Berlin,
   Heidelberg, 2011. Springer-Verlag.
 
-\bibitem{Long:2011:TEE:2035562.2035636}
-R.~Long, H.~Wang, Y.~Chen, O.~Jin, and Y.~Yu.
-\newblock {Towards effective event detection, tracking and summarization on
-  microblog data}.
-\newblock In {\em Proceedings of the 12th international conference on Web-age
-  information management}, WAIM'11, pages 652--663, Berlin, Heidelberg, 2011.
-  Springer-Verlag.
-
-\bibitem{Nagarajan:2009:SAC:1692411.1692481}
-M.~Nagarajan, K.~Gomadam, A.~P. Sheth, A.~Ranabahu, R.~Mutharaju, and
-  A.~Jadhav.
-\newblock {Spatio-Temporal-Thematic Analysis of Citizen Sensor Data: Challenges
-  and Experiences}.
-\newblock In {\em Proceedings of the 10th International Conference on Web
-  Information Systems Engineering}, WISE '09, pages 539--553, Berlin,
-  Heidelberg, 2009. Springer-Verlag.
+\bibitem{Lin:2010:PSM:1835804.1835922}
+C.~X. Lin, B.~Zhao, Q.~Mei, and J.~Han.
+\newblock {PET: a statistical model for popular events tracking in social
+  communities}.
+\newblock In {\em Proceedings of the 16th ACM SIGKDD international conference
+  on Knowledge discovery and data mining}, KDD '10, pages 929--938, New York,
+  NY, USA, 2010. ACM.
 
 \bibitem{osborne2014real}
 M.~Osborne, S.~Moran, R.~McCreadie, A.~{Von Lunen}, M.~Sykora, E.~Cano,
@@ -85,6 +127,15 @@ S.~Petrovi\'{c}, M.~Osborne, and V.~Lavrenko.
   Linguistics in a World of Social Media}, WSA '10, pages 25--26, Stroudsburg,
   PA, USA, 2010. Association for Computational Linguistics.
 
+\bibitem{Petrovic:2012:UPI:2382029.2382072}
+S.~Petrovi\'{c}, M.~Osborne, and V.~Lavrenko.
+\newblock {Using paraphrases for improving first story detection in news and
+  Twitter}.
+\newblock In {\em Proceedings of the 2012 Conference of the North American
+  Chapter of the Association for Computational Linguistics: Human Language
+  Technologies}, NAACL HLT '12, pages 338--346, Stroudsburg, PA, USA, 2012.
+  Association for Computational Linguistics.
+
 \bibitem{petrovic2013can}
 S.~Petrovic, M.~Osborne, R.~McCreadie, C.~Macdonald, I.~Ounis, and
   L.~Shrimpton.
@@ -101,6 +152,14 @@ C.~Pring.
 Y.~Raimond and S.~Abdallah.
 \newblock {The Event Ontology}, 2007.
 
+\bibitem{6601695}
+J.~Rogstadius, M.~Vukovic, C.~A. Teixeira, V.~Kostakos, E.~Karapanos, and J.~A.
+  Laredo.
+\newblock {CrisisTracker: Crowdsourced social media curation for disaster
+  awareness}.
+\newblock {\em IBM Journal of Research and Development}, 57(5):4:1--4:13, Sept.
+  2013.
+
 \bibitem{Sakaki:2010:EST:1772690.1772777}
 T.~Sakaki, M.~Okazaki, and Y.~Matsuo.
 \newblock {Earthquake shakes Twitter users: real-time event detection by social
@@ -108,12 +167,9 @@ T.~Sakaki, M.~Okazaki, and Y.~Matsuo.
 \newblock In {\em Proceedings of the 19th international conference on World
   wide web}, WWW '10, pages 851--860, New York, NY, USA, 2010. ACM.
 
-\bibitem{Sankaranarayanan:2009:TNT:1653771.1653781}
-J.~Sankaranarayanan, H.~Samet, B.~E. Teitler, M.~D. Lieberman, and J.~Sperling.
-\newblock {TwitterStand: news in tweets}.
-\newblock In {\em Proceedings of the 17th ACM SIGSPATIAL International
-  Conference on Advances in Geographic Information Systems}, GIS '09, pages
-  42--51, New York, NY, USA, 2009. ACM.
+\bibitem{Sydell2011}
+L.~Sydell.
+\newblock {How Twitter's Trending Algorithm Picks Its Topics}, Dec. 2011.
 
 \bibitem{vasudevan2013twitter}
 V.~Vasudevan, J.~Wickramasuriya, S.~Zhao, and L.~Zhong.
@@ -121,6 +177,24 @@ V.~Vasudevan, J.~Wickramasuriya, S.~Zhao, and L.~Zhong.
 \newblock In {\em Pervasive Computing and Communications Workshops (PERCOM
   Workshops), 2013 IEEE International Conference on}, pages 181--186. IEEE,
   2013.
+
+\bibitem{weng2011event}
+J.~Weng and B.-S. Lee.
+\newblock {Event Detection in Twitter}.
+\newblock In {\em ICWSM}, 2011.
+
+\bibitem{xie2013topicsketch}
+W.~Xie, F.~Zhu, J.~Jiang, E.-p. Lim, and K.~Wang.
+\newblock {TopicSketch: Real-time Bursty Topic Detection from Twitter}.
+\newblock In {\em Data Mining (ICDM), 2013 IEEE 13th International Conference
+  on}, pages 837--846. IEEE, 2013.
+
+\bibitem{Zhao2007}
+Q.~Zhao and B.~Chen.
+\newblock {Temporal and Information Flow Based Event Detection From Social Text
+  Streams}.
+\newblock In {\em the 22nd national conference on Artificial intelligence -
+  Volume 2}, number Leuski 2004, pages 1501--1506, 2007.
 
 \bibitem{Zhao2011}
 S.~Zhao, L.~Zhong, J.~Wickramasuriya, and V.~Vasudevan.
