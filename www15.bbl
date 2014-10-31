@@ -1,33 +1,11 @@
 \begin{thebibliography}{10}
 
-\bibitem{Allan98topicdetection}
-J.~Allan, J.~Carbonell, G.~Doddington, J.~Yamron, Y.~Yang, J.~P. J.~A. Umass,
-  B.~A. Cmu, D.~B. Cmu, A.~H. A.~B. Cmu, R.~B. Cmu, I.~C. Dragon, G.~D. Darpa,
-  J.~L. Cmu, V.~L. Umass, X.~L. Cmu, S.~L. Dragon, P.~V.~M. Dragon, R.~P.
-  Umass, T.~P. Cmu, and M.~S. Umass.
-\newblock {Topic Detection and Tracking Pilot Study Final Report}.
-\newblock In {\em In Proceedings of the DARPA Broadcast News Transcription and
-  Understanding Workshop}, pages 194--218, 1998.
-
 \bibitem{allan1998line}
 J.~Allan, R.~Papka, and V.~Lavrenko.
 \newblock {On-line new event detection and tracking}.
 \newblock In {\em Proceedings of the 21st annual international ACM SIGIR
   conference on Research and development in information retrieval}, pages
   37--45. ACM, 1998.
-
-\bibitem{Bansal:2007:BSO:1325851.1326028}
-N.~Bansal and N.~Koudas.
-\newblock {BlogScope: a system for online analysis of high volume text
-  streams}.
-\newblock In {\em Proceedings of the 33rd international conference on Very
-  large data bases}, VLDB '07, pages 1410--1413. VLDB Endowment, 2007.
-
-\bibitem{Bansal:2007:BSA:1242572.1242802}
-N.~Bansal and N.~Koudas.
-\newblock {BlogScope: spatio-temporal analysis of the blogosphere}.
-\newblock In {\em Proceedings of the 16th international conference on World
-  Wide Web}, WWW '07, pages 1269--1270, New York, NY, USA, 2007. ACM.
 
 \bibitem{becker2011beyond}
 H.~Becker, M.~Naaman, and L.~Gravano.
@@ -127,15 +105,6 @@ S.~Petrovi\'{c}, M.~Osborne, and V.~Lavrenko.
   Linguistics in a World of Social Media}, WSA '10, pages 25--26, Stroudsburg,
   PA, USA, 2010. Association for Computational Linguistics.
 
-\bibitem{Petrovic:2012:UPI:2382029.2382072}
-S.~Petrovi\'{c}, M.~Osborne, and V.~Lavrenko.
-\newblock {Using paraphrases for improving first story detection in news and
-  Twitter}.
-\newblock In {\em Proceedings of the 2012 Conference of the North American
-  Chapter of the Association for Computational Linguistics: Human Language
-  Technologies}, NAACL HLT '12, pages 338--346, Stroudsburg, PA, USA, 2012.
-  Association for Computational Linguistics.
-
 \bibitem{petrovic2013can}
 S.~Petrovic, M.~Osborne, R.~McCreadie, C.~Macdonald, I.~Ounis, and
   L.~Shrimpton.
@@ -188,13 +157,6 @@ W.~Xie, F.~Zhu, J.~Jiang, E.-p. Lim, and K.~Wang.
 \newblock {TopicSketch: Real-time Bursty Topic Detection from Twitter}.
 \newblock In {\em Data Mining (ICDM), 2013 IEEE 13th International Conference
   on}, pages 837--846. IEEE, 2013.
-
-\bibitem{Zhao2007}
-Q.~Zhao and B.~Chen.
-\newblock {Temporal and Information Flow Based Event Detection From Social Text
-  Streams}.
-\newblock In {\em the 22nd national conference on Artificial intelligence -
-  Volume 2}, number Leuski 2004, pages 1501--1506, 2007.
 
 \bibitem{Zhao2011}
 S.~Zhao, L.~Zhong, J.~Wickramasuriya, and V.~Vasudevan.
