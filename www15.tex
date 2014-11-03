@@ -52,7 +52,7 @@
 
 \begin{document}
 
-\title{Bootstrapping Language-Agnostic Event Detection in Social Media Streams with Sporting Events}
+\title{An Automated Method for Identifying Interesting Moments and Events in Social Media Streams}
 %
 % You need the command \numberofauthors to handle the 'placement
 % and alignment' of the authors beneath the title.
@@ -120,10 +120,9 @@ Jen Golbeck\\
 
 \maketitle
 \begin{abstract}
-Much of the existing research into event detection in social media relaxes the problem by assuming a specific language, targeting fixed event types, and tracking bursts of seed keywords relevant to the target domain.
-While such systems demonstrate acceptable performance, they suffer from a number of drawbacks, most notable of which are requiring a priori knowledge of relevant keywords and brittleness in adapting to new languages or event types. 
-This paper extends such approaches by introducing a technique for modeling temporal patterns exhibited by keywords experiencing bursts and by building a classifier that can identify these bursting keywords from Twitter's public sample stream.
-By focusing only on these temporal characteristics in burst identification, our approach achieves a measure of language agnosticism current techniques lack.
+Existing research into event detection in social media often targets specific events by tracking relevant seed keywords, a method that suffers from significant drawbacks like requiring a priori knowledge of relevant tokens and difficulties in adapting to new domains or languages. 
+This paper extends such approaches by introducing a general technique for identifying moments of interest, which often correspond to events, by modeling temporal patterns around bursts and by building a classifier that can identify bursting keywords from Twitter's public sample stream.
+By focusing only on these temporal characteristics in identifying bursts, our approach achieves a measure of language agnosticism and general flexibility current techniques lack.
 We then compare a baseline event-detection system with our language-agnostic algorithm in detecting a number of key events across three major sporting competitions: the 2013 World Series, 2014 Super Bowl, and 2014 World Cup.
 Results from this comparison show our method demonstrates similar performance in this sports detection domain without the need to pre-specify any event-related information.
 We then go further by applying our sports-based models to the task of identifying earthquakes in Japan and show our method detects large spikes in earthquake-related tokens within two minutes of the actual event.
@@ -142,31 +141,34 @@ We then go further by applying our sports-based models to the task of identifyin
 Social media has drastically increased the velocity of human communication, transforming how information propagates across the planet. 
 This democratization of information has researchers and traditional media organizations considering social media as a viable complement and/or alternative to existing news sources.
 For instance, social media can perform on par with existing newswire sources for certain types of breaking stories \cite{petrovic2013can}.
-While such social media-based systems are able to detect noteworthy events rapidly, they often come with restrictions needed to make the event-detection task tractable. 
+Such systems generally require a human expert to generate a set of seed tokens to track across social media, and while these systems are able to detect noteworthy events rapidly, they often come with restrictions needed to make the event-detection task tractable. 
 Such constraints might include pre-specifying classes of interesting events, limiting target languages, setting event-centric queries, and preprocessing/ filtering data through expensive language models.
 Resulting systems are brittle and inflexible in application and are difficult to adapt to new domains, languages, or types of events.
-Forgoing these simplifying restrictions and processing an unfiltered social media stream is a more difficult task given the volume of noise in such sources, but advantages like multi-language event detection and unexpected event discovery have many practical and important applications currently  unsatisfied by existing technology.
+Most importantly, however, the critical weakness here is that such approaches preclude any  \emph{discovery} of interesting events; since there is no flexibility in identifying new tokens automatically, many interesting moments related to the target event might be lost because they may not mention the pre-specified token, which could occur for any number of reasons (different language, colloquialisms, or particular names of people or places).
 
-Existing work already achieves acceptable performance in detecting events within social media streams when event types and keywords are known, but what if we could achieve the same performance in a language-agnostic way and without the need to pre-specify keywords or filter the streams?
-Given the ``unreasonable effectiveness of data'' and the shear volume of social media content  generated per minute (hundreds of thousands of comments, statuses, and photos on Facebook alone as of 2012 \cite{Pring2012}), it is possible that temporal patterns alone could provide valuable cues for detecting events without relying on linguistic understanding and accompanying drawbacks.
-This paper pursues such an alternative avenue for unfiltered event detection by disregarding language semantics and focusing on the temporal patterns that comprise breaking news and high-impact events.
+Forgoing such simplifying restrictions and processing unfiltered social media streams is a more difficult task given the volume of noise in such sources, but the flexibility to discover surprising or unexpected moments across multiple languages/dialects has many practical advantages currently unsatisfied by existing technology.
+Given the ``unreasonable effectiveness of data'' and the shear volume of social media content  (hundreds of thousands of comments, statuses, and photos generated per minute on Facebook alone as of 2012 \cite{Pring2012}), temporal patterns alone might alleviate these dependencies.
 
-To explore these questions, we propose a set of features and an ensemble classifier for learning patterns of increased token usage, or bursts, in the Twitter stream in response to key moments in large sporting competitions without any filtering of the stream or prior knowledge of the target events.
-Sporting events are particularly interesting since they are both highly followed and occur regularly, which make them ideal for collecting data and exercising event detection systems.
-Sports are complex, however, in that they also include multiple types and unpredictable patterns of events around scores, fouls, and other compelling moments of action.
+To explore these questions, we propose a general method for identifying interesting moments in social media streams by learning patterns of increased token usage, or bursts.
+In contrast to existing work, our approach operates without prior knowledge of the target events or any domain-dependent stream filtering.
+We demonstrate this additional flexibility through experiments on Twitter's public sample stream surrounding key moments in large sporting competitions
+Such events are both highly followed and occur regularly, which make them ideal for collecting data and exercising event detection systems but are also complex in that they include multiple types and unpredictable patterns of events around scores, fouls, and other compelling moments of action.
 High-impact sports competitions like the World Cup also have extensive international viewership, so one must also account for multiple languages and different vocabularies of events.
 We experiment on several such sporting competitions to illustrate how our language-agnostic, burst-centric technique performs in comparison to a baseline keyword-centric method while simultaneously providing additional insight across languages and without text normalization or filtering.
 Finally, we apply the models learned in the sporting domain to earthquake detection and show performance commensurate with existing research.
 
-% I hate these kinds of paragraphs
-%Prior to presenting our work, however, we first establish the context and foundations upon which our research builds by briefly describing the relevant work in this area (Section \ref{sect:relatedWork}). 
-%We follow up with descriptions of data collection and methods for comparing our technique to an existing token-centric baseline before providing details on our features for burst detection, the components of our ensemble classifier, and how the baseline operates (Section \ref{sect:methods}).
-%Results from these experiments and their analyses are then presented (Sections \ref{sect:results} and \ref{sect:analysis} respectively) before we close with ideas for future work and conclusions.
+More concisely, this work makes the following contributions:
+%
+\begin{itemize}
+\item We propose a feature set and classifier for seedless, language-agnostic detection of moments of high interest in the Twitter public sample stream.
+\item By comparing our method to an existing event detection baseline system, we demonstrate our generalization of events to interesting moments is still highly performant.
+\item It is possible to adapt our sports-related models to domains like earthquakes and still maintain near real-time detection.
+\end{itemize}
 
 \section{Related Work}
 \label{sect:relatedWork}
 
-Detecting events by leveraging digital media has fascinated researchers for over twenty years, with new methods, breakthroughs, and technologies emerging every few years.
+Though we are focusing on the slightly different problem of identifying ``interesting moments'' in social media streams, we still build on much of the same work as classical event detection, which has fascinated researchers for over twenty years, with new methods, breakthroughs, and technologies emerging every few years.
 This subfield has evolved to integrate the latest available techniques and data sources, starting from early digital newsprint to blogs and now social media.
 Early stages of this research started in the mid-nineties with the Topic Detection and Tracking (TDT) initiative.
 These programs demonstrated feasibility in detecting new topics from traditional media sources, but as Allan, Papka, and Lavrenko discussed in 1998, these approaches required additional work to see real success \cite{allan1998line}.
@@ -252,25 +254,29 @@ This section defines these detection tasks, presents our experimental framework,
 
 \subsection{Problem Definition}
 
-Prior to any deep description on methods, we first define an ``event'' and a ``burst'' within the context of this research.
-Though the term ``event'' is vague and overridden in many contexts, we borrow from existing works like Allan et al. and Raimond and Abdallah's Event Ontology \cite{Raimond2007,allan1998line}.
-From these sources, one could define an event as ``something that happens at a particular time and place'' and can be composed of one or more ``sub-events'' that occur within the context of the larger event.
-For the purposes of this paper, however, we further restrict our definition to \emph{instantaneous} events and sub-events, or those events that occur at a specific place and time \emph{and} have a negligible amount of time between start and end.
-Examples of such instantaneous events include a point scored in a game, a single explosion during some terrorist attack, or a particular tremor in an earthquake.
-These instantaneous events are interesting and hard to identify because one may not know tokens relevant to these brief events until the event is occurring, and by the time one can react, such a short-term event would already be over. 
+%Prior to any deep description on methods, we first define an ``event'' and a ``burst'' within the context of this research.
+%Though the term ``event'' is vague and overridden in many contexts, we borrow from existing works like Allan et al. and Raimond and Abdallah's Event Ontology \cite{Raimond2007,allan1998line}.
+%From these sources, one could define an event as ``something that happens at a particular time and place'' and can be composed of one or more ``sub-events'' that occur within the context of the larger event.
+%For the purposes of this paper, however, we further restrict our definition to \emph{instantaneous} events and sub-events, or those events that occur at a specific place and time \emph{and} have a negligible amount of time between start and end.
+%Examples of such instantaneous events include a point scored in a game, a single explosion during some terrorist attack, or a particular tremor in an earthquake.
+%These instantaneous events are interesting and hard to identify because one may not know tokens relevant to these brief events until the event is occurring, and by the time one can react, such a short-term event would already be over. 
+%
+The term ``event'' is vague and overridden in many contexts, with varying definitions from existing works like Allan et al. to an entire ontology devoted to describing the term (Raimond and Abdallah's Event Ontology) \cite{Raimond2007,allan1998line}.
+By instead focusing on interesting moments in time, we avoid this convoluted myriad of definitions and restrict ourselves to detecting \emph{instantaneous} moments of interest in the real world.
+Examples of such moments include a point scored in a game, a single explosion during some terrorist attack, or a particular tremor in an earthquake.
+These instances are interesting and hard to identify because one may not know tokens relevant to these brief events until the event is occurring, and by the time one can react, the moment has passed. 
 
-Corresponding to these brief events, we define a burst in a token's usage as a sudden increase in the frequency with which that token appears in a data stream.
-Like ``event,'' ``burst'' is vague and can be applied at various levels of granularity (seconds, minutes, hours, days, etc.).
-As an example, ``Obama'' experienced a burst in usage over a period of months leading into the 2008 Democratic Primary as President Obama was relatively unknown prior to that. 
-Tokens like ``earthquake'' or ``goal,'' on the other hand, would experience more drastic bursts in much shorter periods just around the time of a specific event.
-We refer to such tokens as ``bursty.''
-Again, for our purposes, we focus only on bursts that occur within a minute (or just a few minutes). 
+Corresponding to these brief moments, we define a burst in a token's usage as a sudden increase in the frequency with which that token appears in a data stream, and we refer to such tokens as ``bursty.''
 It's worth noting bursts need not be symmetric; that is, a drastic uptick in frequency need not be followed by an equally dramatic fall in usage.
 
 If we let $E$ denote the set of all minutes $t$ in which an event occurs, then the indicator function $\mathbbm{1}_E(t)$ returns a $1$ for all times $t$ in which an event occurs, and $0$ for all other values of $t$. 
 We can now define the event detection task as constructing a function that approximates this indicator function $\mathbbm{1}_E(t)$.
-To account for possible lag in experiencing the event, typing out a message about the event, and the message actually posting to a social media server, we relax this task slightly by using the set $E'$ where, for all $t \in E$, $t, t+1, t+2 \in E'$.
-False positives/negatives and true positives/negatives follow in the normal way for some candidate function $\widehat{\mathbbm{1}_E}(t)$: a false positive is any time $t$ such that $\widehat{\mathbbm{1}_E}(t) = 1$ and ${\mathbbm{1}_E}(t) = 0$; likewise, a false negative is any $t$ such that $\widehat{\mathbbm{1}_E}(t) = 0$ and ${\mathbbm{1}_E}(t) = 1$.
+To account for possible lag in experiencing the event, typing out a message about the event, and the message actually posting to a social media server, we include a parameter $\tau$ to control for tolerance of delay.
+This parameter relaxes the task slightly by constructing the set $E'$ where, for all $t \in E$, $t, t+1, t+2, ..., t+\tau \in E'$.
+Since our evaluation is a comparison between two methods that share the same ground truth, and controlling $\tau$ affects the ground truth consistently for both methods, comparative results should be unaffected.
+In this paper, we use $\tau=2$.
+
+False positives/negatives and true positives/negatives follow in the normal way for some candidate function $\widehat{\mathbbm{1}_{E'}}(t)$: a false positive is any time $t$ such that $\widehat{\mathbbm{1}_{E'}}(t) = 1$ and ${\mathbbm{1}_{E'}}(t) = 0$; likewise, a false negative is any $t$ such that $\widehat{\mathbbm{1}_{E'}}(t) = 0$ and ${\mathbbm{1}_{E'}}(t) = 1$.
 True positives/negatives then follow as expected.
 
 \subsection{Experimental Framework}
@@ -279,14 +285,35 @@ Having established the vocabulary and tasks, we can now turn our attention to th
 Sporting competitions adhere well to our definition of event in that a sporting event has a well-defined place and time and can contain many unpredictable sub-events, such as scores, fouls, ejections, or other dramatic moments of play.
 Additionally, sporting events with large followings occur fairly often and with a good degree of regularity, greatly simplifying data collection.
 Our main experiment here is a comparative study in detecting a collection of events in three major sporting competitions: the 2013 Major League Baseball (MLB) World Series, 2014 National Football League (NFL) Super Bowl, and 2014 F\'{e}d\'{e}ration Internationale de Football Association (FIFA) World Cup.
+Specifically, for the 2013 World Series between the Boston Red Sox and the St. Louis Cardinals, we explore only the final two games on 28 October and 30 October of 2013.
+Similarly for the 2014 World Cup, our analysis covers the final two matches of tournament: the 12 July match between the Netherlands and Brazil for third place, and the final match on 13 July between Germany and Argentina for first place.
+Since the 2014 Super Bowl was a single-day competition, we covered the entire game between the Seatlle Seahawks and the Denver Broncos on 2 February 2014.
 
 In each competition, we extract the times of four basic types of events (beginning of the game, end of the game, scores, and penalties) from sport journalism articles, game highlights, box scores, blog posts, and social media messages to construct game timelines.
+Table \ref{tab:eventStats} provides some statistics on the events we identified.
+%
+\begin{table}[htdp]
+\caption{Sporting Competition Event Counts}
+\begin{center}
+\begin{tabular}{|p{0.7in}|c|c|c|c|c|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Sport}} & \textbf{Start} & \textbf{End} & \textbf{Score} & \textbf{Penalty} & \textbf{Sum} \\ \hline
+World Series & 2 & 2 & 10 & 0 & 14 \\ \hline
+Super Bowl & 1 & 1 & 10 & 0 & 12 \\ \hline
+World Cup & 2 & 2 & 4 & 9 & 17 \\ \hline
+\multicolumn{5}{|r|}{\textbf{Total}} & 43 \\ \hline
+\end{tabular}
+\end{center}
+\label{tab:eventStats}
+\end{table}
+
 These events then comprise the ground truth against which we compare LABurst and the baseline.
 That is, positive instances of events are those minutes in which one of these events occurs, and negative instances are those minutes in which no known sports-related event occurs.
-This data comprises our testing data set, and neither the baseline nor LABurst are trained on or evaluated against this data prior to testing and reporting.
-From this data, we generate receiver operating characteristic (ROC) curves for both LABurst and the baseline across each sport and then a composite ROC curve for all sports and compare the area under the curves (AUCs) for both methods.
-The AUC of the ROC curve is a valuable statistic in this instance because it is robust against problems with imbalanced classes (e.g., two-class classification problems with many more negative instances than positive instances), as our sporting event detection task is.
-That is, one would expect our scenarios to have significantly more minutes without events than with events.
+This data comprises our testing data set such that neither the baseline nor LABurst are trained on or evaluated against this data prior to evaluation and reporting.
+From this data, we generate receiver operating characteristic (ROC) curves for both LABurst and the baseline by varying a threshold parameter across each sport and then a composite ROC curve for all sports and compare the area under the curves (AUCs) for both methods.
+In the baseline approach, our threshold parameter controls the minimum difference between current frequency and average frequency over the sliding window.
+For our LABurst method, the ROC curve is generated by varying the minimum number of tweets a window must contain for an event to be detected.
+The AUC of the ROC curve is useful in this instance because it is robust against imbalanced classes, which we expect to see in the event detection task.
 
 We then follow up with an additional experiment of whether LABurst can detect earthquake events as inspired by Sakaki et al.
 This investigation compares LABurst with the frequency of the keyword ``earthquake'' by applying LABurst's models learned in the first experiment to social media captured during two large earthquakes: the 7.1-magnitude quake off the coast of Honshu, Japan on 25 October 2013, and a 6.5-magnitude quake off the coast of Iwaki, Japan on 11 July 2014.
@@ -418,23 +445,18 @@ To restate, the research question posed in this work is to determine whether a l
 We answer this question across three separate sporting events: the final two games of the 2013 MLB World Series, the 2014 NFL Super Bowl, and the final two matches of the 2014 FIFA World Cup.
 These events were completely new data sets for both the baseline and LABurst and were not included in training, so any events detected by either algorithm were previously unseen events.
 
-For each event, we generated ROC curves by varying a threshold parameter and calculating the true and false positive rates on detection corresponding to the indicator function $\mathbbm{1}_E(t)$ described above.
+For each sporting competition, we generated ROC curves by varying the threshold parameter and calculating the true and false positive rates on detection corresponding to the indicator function $\mathbbm{1}_E(t)$ described above.
 That is, the true positive rate equals the number of minutes in which an event both was detected \emph{and} occurred versus the number of minutes in which an event actually occurs.
 Similarly, the false positive rate is the number of minutes in which the algorithm detects an event when no event actually occurred versus the total number of minutes in which no events occurred.
 
-In the baseline approach, our threshold parameter controlled the minimum difference between current frequency and average frequency over the sliding window.
-For our LABurst method, the ROC curve was generated by varying the minimum number of tweets a window must contain for an event to be detected.
-We then compared the area under the curve (AUC) metric to determine the difference in performance between the two methods.
 Prior to presenting comprehensive results, we first present performance curves for each event type.
-
-\subsection{2013 World Series}
-
-For the 2013 World Series between the Boston Red Sox and the St. Louis Cardinals, we explored only the final two games on 28 October and 30 October of 2013.
-These games contained fourteen events of interest: four game starts/ends and ten instances of points scored.
-The two tested techniques exhibited similar performance, with a difference of only 0.02 (the baseline with 0.76 and the language-agnostic bursty method with 0.74).
+For the 2013 World Series, LABurst and the baseline techniques exhibited similar performance, with a difference of only 0.02 (the baseline with 0.76 and the language-agnostic bursty method with 0.74).
 Figure \ref{fig:roc2013WorldSeries} shows the how these two curves compare graphically, and we can see that neither curve completely dominates the other, and both perform better than random guessing.
+In the Super Bowl, the difference between the two mechanisms (shown in Figure \ref{fig:roc2014SuperBowl}) is more pronounced with a difference in AUC near 0.1, with the baseline performing better.
+LABurst exhibited a much higher false-positive rate in comparison to the baseline, which may be explained later in \ref{sect:eventDiscovery}.
+Unlike the World Series and Super Bowl, however, the difference between the baseline and LABurst shows our LABurst method actually outperforms the baseline here with a difference in AUC of approximately 0.05.
 
-\begin{figure}[hbtp]
+\begin{figure}[h]
 \begin{center}
 \includegraphics[width=2in]{./figures/roc_2013_WorldSeries.png}
 \caption{ROC Curves for the 2013 World Series}
@@ -442,13 +464,7 @@ Figure \ref{fig:roc2013WorldSeries} shows the how these two curves compare graph
 \end{center}
 \end{figure}
 
-\subsection{2014 Super Bowl}
-
-Since the 2014 Super Bowl was a single-day competition, we covered the entire game between the Seatlle Seahawks and the Denver Broncos on 2 February 2014, which contained twelve events: a game start, an end, and ten instances of points scored.
-The difference between the two mechanisms (shown in Figure \ref{fig:roc2014SuperBowl}) is more pronounced with a difference in AUC near 0.1, with the baseline performing better.
-LABurst exhibited a much higher false-positive rate in comparison to the baseline, which may be explained later in \ref{sect:eventDiscovery}.
-
-\begin{figure}[hbtp]
+\begin{figure}[h]
 \begin{center}
 \includegraphics[width=2in]{./figures/roc_2014_SuperBowl.png}
 \caption{ROC Curves for the 2014 Super Bowl}
@@ -456,13 +472,7 @@ LABurst exhibited a much higher false-positive rate in comparison to the baselin
 \end{center}
 \end{figure}
 
-\subsection{2014 World Cup}
-
-As with the World Series, our World Cup analysis covered the final two matches of tournament: the 12 July match between the Netherlands and Brazil for third place, and the final match on 13 July between Germany and Argentina for first place.
-These matches contained the most events with a total of seventeen: four game starts/ends, nine penalty cards issued, and four goals scored.
-Unlike the World Series and Super Bowl, however, the difference between the baseline and LABurst shows our LABurst method actually outperforms the baseline here with a difference in AUC of approximately 0.05.
-
-\begin{figure}[hbtp]
+\begin{figure}[h]
 \begin{center}
 \includegraphics[width=2in]{./figures/roc_2014_WorldCup.png}
 \caption{ROC Curves for the 2014 World Cup}
@@ -571,7 +581,7 @@ Finally, the last artifact of note is that the set of bursty tokens displayed in
 Since these words are semantically similar but syntactically dissimilar, typical normalization schemes could not capture these connections.
 Instead, capturing these words in the baseline would require a pre-specific keyword list in all possible languages or the inclusion of an expensive machine translation system that was also capable of normalizing within different languages (to collapse ``goool'' down to ``gol'' for example).
 
-\subsection{Undocumented Event Discovery}
+\subsection{Unexpected Event Discovery}
 \label{sect:eventDiscovery}
 
 One particular weakness present in the baseline is that it is unable to capture unexpected events or events that do not conform to the keyword list.
