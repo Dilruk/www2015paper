@@ -120,9 +120,9 @@ Jen Golbeck\\
 
 \maketitle
 \begin{abstract}
-Existing research into event detection in social media often targets specific events by tracking relevant seed keywords, a method that suffers from significant drawbacks like requiring a priori knowledge of relevant tokens and difficulties in adapting to new domains or languages. 
-This paper extends such approaches by introducing a general technique for identifying moments of interest, which often correspond to events, by modeling temporal patterns around bursts and by building a classifier that can identify bursting keywords from Twitter's public sample stream.
-By focusing only on these temporal characteristics in identifying bursts, our approach achieves a measure of language agnosticism and general flexibility current techniques lack.
+Existing research into event detection in social media often targets specific events by tracking relevant seed keywords, a method that suffers from significant drawbacks, the most important of which is the inability to discover related, interesting, and unexpected moments that may not specifically mention any predefined keyword. 
+This paper extends such approaches by introducing a general technique for identifying interesting and compelling moments, which often correspond to events, by modeling temporal patterns around bursts and by building a classifier that can identify bursting tokens from Twitter's public sample stream.
+By focusing only on these temporal characteristics, our approach achieves a measure of language agnosticism and general flexibility current techniques lack.
 We then compare a baseline event-detection system with our language-agnostic algorithm in detecting a number of key events across three major sporting competitions: the 2013 World Series, 2014 Super Bowl, and 2014 World Cup.
 Results from this comparison show our method demonstrates similar performance in this sports detection domain without the need to pre-specify any event-related information.
 We then go further by applying our sports-based models to the task of identifying earthquakes in Japan and show our method detects large spikes in earthquake-related tokens within two minutes of the actual event.
@@ -138,37 +138,34 @@ We then go further by applying our sports-based models to the task of identifyin
 
 \section{Introduction}
 
-Social media has drastically increased the velocity of human communication, transforming how information propagates across the planet. 
-This democratization of information has researchers and traditional media organizations considering social media as a viable complement and/or alternative to existing news sources.
-For instance, social media can perform on par with existing newswire sources for certain types of breaking stories \cite{petrovic2013can}.
-Such systems generally require a human expert to generate a set of seed tokens to track across social media, and while these systems are able to detect noteworthy events rapidly, they often come with restrictions needed to make the event-detection task tractable. 
-Such constraints might include pre-specifying classes of interesting events, limiting target languages, setting event-centric queries, and preprocessing/ filtering data through expensive language models.
+The shear volume of social media content (hundreds of thousands of comments, statuses, and photos generated per minute on Facebook alone as of 2012 \cite{Pring2012}) have researchers, traditional media organizations, and even advertisers looking to it as a supplement to existing sources of breaking and real-time news.
+This push has led to a proliferation of socially enabled systems for detecting noteworthy events across a wide field of domains.
+Such systems generally require a human expert to generate domain-specific seed tokens to track across social networks, and while these systems are able to detect noteworthy events rapidly, they often come with restrictions to make the event-detection task tractable. 
+These constraints often include predefined classes of interesting events, restrictions on target languages, and the need to filter data through expensive language models.
 Resulting systems are brittle and inflexible in application and are difficult to adapt to new domains, languages, or types of events.
-Most importantly, however, the critical weakness here is that such approaches preclude any  \emph{discovery} of interesting events; since there is no flexibility in identifying new tokens automatically, many interesting moments related to the target event might be lost because they may not mention the pre-specified token, which could occur for any number of reasons (different language, colloquialisms, or particular names of people or places).
+Most importantly, however, the critical weakness is that such approaches preclude any notion of \emph{discovering} interesting events; since little flexibility exists in identifying new tokens automatically, many interesting moments related to the target event are lost because they may not mention a pre-specified token.
+Addressing this significant drawback is difficult given the volume of data and noise in social media streams, but the flexibility to discover surprising or unexpected moments across multiple languages, dialects, and domains has many practical advantages currently unsatisfied by existing technology.
 
-Forgoing such simplifying restrictions and processing unfiltered social media streams is a more difficult task given the volume of noise in such sources, but the flexibility to discover surprising or unexpected moments across multiple languages/dialects has many practical advantages currently unsatisfied by existing technology.
-Given the ``unreasonable effectiveness of data'' and the shear volume of social media content  (hundreds of thousands of comments, statuses, and photos generated per minute on Facebook alone as of 2012 \cite{Pring2012}), temporal patterns alone might alleviate these dependencies.
-
-To explore these questions, we propose a general method for identifying interesting moments in social media streams by learning patterns of increased token usage, or bursts.
+To explore these questions, we propose a general method for learning temporal patterns of increased token usage, or bursts, and tracking the frequency of tokens experiencing these bursts to identify interesting moments in social media streams.
 In contrast to existing work, our approach operates without prior knowledge of the target events or any domain-dependent stream filtering.
 We demonstrate this additional flexibility through experiments on Twitter's public sample stream surrounding key moments in large sporting competitions
 Such events are both highly followed and occur regularly, which make them ideal for collecting data and exercising event detection systems but are also complex in that they include multiple types and unpredictable patterns of events around scores, fouls, and other compelling moments of action.
 High-impact sports competitions like the World Cup also have extensive international viewership, so one must also account for multiple languages and different vocabularies of events.
-We experiment on several such sporting competitions to illustrate how our language-agnostic, burst-centric technique performs in comparison to a baseline keyword-centric method while simultaneously providing additional insight across languages and without text normalization or filtering.
+Given the overlap in interesting moments and events, we experiment on several such sporting competitions to illustrate how our language-agnostic, burst-centric technique performs in comparison to a baseline keyword-centric method while simultaneously providing additional insight across languages and without text normalization or filtering.
 Finally, we apply the models learned in the sporting domain to earthquake detection and show performance commensurate with existing research.
 
 More concisely, this work makes the following contributions:
 %
 \begin{itemize}
 \item We propose a feature set and classifier for seedless, language-agnostic detection of moments of high interest in the Twitter public sample stream.
-\item By comparing our method to an existing event detection baseline system, we demonstrate our generalization of events to interesting moments is still highly performant.
+\item By comparing our method to an existing event detection baseline technique, we demonstrate our generalization of events to interesting moments is competitive with existing approaches.
 \item It is possible to adapt our sports-related models to domains like earthquakes and still maintain near real-time detection.
 \end{itemize}
 
 \section{Related Work}
 \label{sect:relatedWork}
 
-Though we are focusing on the slightly different problem of identifying ``interesting moments'' in social media streams, we still build on much of the same work as classical event detection, which has fascinated researchers for over twenty years, with new methods, breakthroughs, and technologies emerging every few years.
+Though we are focusing on the slightly different problem of identifying ``interesting moments'' in social media streams, we still build on much of the same work as classical event detection, which has fascinated researchers for over twenty years, with new methods, breakthroughs, and technologies emerging often.
 This subfield has evolved to integrate the latest available techniques and data sources, starting from early digital newsprint to blogs and now social media.
 Early stages of this research started in the mid-nineties with the Topic Detection and Tracking (TDT) initiative.
 These programs demonstrated feasibility in detecting new topics from traditional media sources, but as Allan, Papka, and Lavrenko discussed in 1998, these approaches required additional work to see real success \cite{allan1998line}.
@@ -247,9 +244,9 @@ It should be clear then that Twitter's trending topics serves a different purpos
 \section{Techniques for Streaming Event Detection}
 \label{sect:methods}
 
-This paper's primary goal is to demonstrate the feasibility of detecting significant events from social media streams by identifying temporal bursts in token usage and analyzing their frequencies (we refer to this language-agnostic, burst-centric technique as LABurst).
-To this end, we compare LABurst's performance with that of a baseline seed-token technique in detecting specific events within a variety of major sporting competitions.
-Then, we show applications outside the sports domain by applying LABurst to the task of detecting earthquakes from social media soon after they occur.
+This paper's primary goal is to demonstrate the feasibility of detecting highly interesting moments from social media streams by identifying temporal bursts in token usage and analyzing their frequencies (we refer to this language-agnostic, burst-centric technique as LABurst).
+Since such compelling instances often align with significant events, we compare LABurst's performance with that of a baseline seed-token technique in detecting specific events within a variety of major sporting competitions.
+Then, we show applications outside the sports domain by applying LABurst to the task of detecting earthquakes using social media similar to Sakaki et al.
 This section defines these detection tasks, presents our experimental framework, details the data sources used, and outlines both the baseline technique and our LABurst method.
 
 \subsection{Problem Definition}
@@ -263,7 +260,7 @@ This section defines these detection tasks, presents our experimental framework,
 %
 The term ``event'' is vague and overridden in many contexts, with varying definitions from existing works like Allan et al. to an entire ontology devoted to describing the term (Raimond and Abdallah's Event Ontology) \cite{Raimond2007,allan1998line}.
 By instead focusing on interesting moments in time, we avoid this convoluted myriad of definitions and restrict ourselves to detecting \emph{instantaneous} moments of interest in the real world.
-Examples of such moments include a point scored in a game, a single explosion during some terrorist attack, or a particular tremor in an earthquake.
+Examples of such moments include a point scored in a game, a single explosion during a particular terrorist attack, or a discrete tremor in an earthquake.
 These instances are interesting and hard to identify because one may not know tokens relevant to these brief events until the event is occurring, and by the time one can react, the moment has passed. 
 
 Corresponding to these brief moments, we define a burst in a token's usage as a sudden increase in the frequency with which that token appears in a data stream, and we refer to such tokens as ``bursty.''
@@ -360,8 +357,23 @@ If this difference exceeds some threshold $Z$ such that $\Delta_k > Z$, we say a
 
 Since our analysis covers three separate types of sporting competitions, the seed keyword list for this method should include tokens from the vocabulary of each. 
 We avoid separate keyword lists for each sport to provide an even comparison to the general nature of our language-agnostic technique.
-The keywords for which we searched were as follows: ``goal'', ``gol'', ``golazo'', ``score'', ``foul'', ``penalty'', ``card'', ``red'', ``yellow'', ``touchdown'', ``td'', ``fieldgoal'', ``points'', ``run'', ``home'', ``homerun''.
+The keywords for which we searched are shown in Table \ref{tab:targetTokens}, and we took the union of these token sets.
 Additionally, the following regular expressions collapsed deliberately misspelled tokens down to their normal counterparts: ``g+o+a+l+'' $\rightarrow$``goal'', ``g+o+l+'' $\rightarrow$``gol'', ``g+o+l+a+z+o+'' $\rightarrow$``golazo'', ``sco+red?'' $\rightarrow$``score''.
+
+%
+\begin{table}[htdp]
+\caption{Predefined Seed Tokens}
+\begin{center}
+\begin{tabular}{|p{0.7in}|p{2.0in}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Sport}} & \multicolumn{1}{|c|}{\textbf{Tokens}} \\ \hline
+World Series & ``run'', ``home'', ``homerun'' \\ \hline
+Super Bowl & ``score'', ``touchdown'', ``td'', ``fieldgoal'', ``points'' \\ \hline
+World Cup & ``goal'', ``gol'', ``golazo'', ``score'', ``foul'', ``penalty'', ``card'', ``red'', ``yellow'', ``points'' \\ \hline
+\end{tabular}
+\end{center}
+\label{tab:targetTokens}
+\end{table}
 
 \subsection{Language-Agnostic Event Detection}
 
