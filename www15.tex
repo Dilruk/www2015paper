@@ -428,7 +428,9 @@ Discriminating between bursty tokens and stop words necessitates the use of a cl
 In particular, the Scikit-learn Python package provides implementations for SVMs and RFs as well as an implementation of the ensemble classifier AdaBoost \cite{scikit-learn}.
 Both SVMs and RFs have tunable parameters to select before integrating into AdaBoost, however, so we employed a grid search strategy to select parameters based on the F1 scores on our training and testing data.
 
-For SVMs, we use the radial basis kernel, which has two parameters: cost $c$ and kernel coefficient $\gamma$.
+For SVMs, we first had to decide whether to use a traditional linear model or employ a kernel.
+Initial experiments showed linear SVMs performed quite poorly, and after using principal component analysis to reduce the dimension and looking at the labeled data, it fit well in a sphere rather than a clear linear plane. 
+As a result, we use the radial basis kernel, which has two parameters: cost $c$ and kernel coefficient $\gamma$.
 In searching the space of $c$ and $\gamma$, the grid covers powers of two such that $c = 2^x$, $x \in [-2, 10]$ and $\gamma = 2^y$, $y \in [-2, 5]$.
 For each pair of parameter values, we train thirty different classifiers using repeated random subsampling, take the average F1 score, and select the parameter set with the highest F1 score.
 Selecting parameter values for RFs is similar for the number of estimators $n$ and feature count $c'$ such that $n = 2^x$, $x \in [0, 10]$ and $c' = 2^y$, $y \in [1, 11]$.
@@ -471,29 +473,26 @@ In the Super Bowl, the difference between the two mechanisms (shown in Figure \r
 LABurst exhibited a much higher false-positive rate in comparison to the baseline, which may be explained later in \ref{sect:eventDiscovery}.
 Unlike the World Series and Super Bowl, however, the difference between the baseline and LABurst shows our LABurst method actually outperforms the baseline here with a difference in AUC of approximately 0.05.
 
-\begin{figure}[h]
-\begin{center}
+\begin{figure*}
+\centering
+\begin{subfigure}[b]{0.3\textwidth}
 \includegraphics[width=2in]{./figures/roc_2013_WorldSeries.png}
-\caption{ROC Curves for the 2013 World Series}
+\caption{2013 World Series}
 \label{fig:roc2013WorldSeries}
-\end{center}
-\end{figure}
-
-\begin{figure}[h]
-\begin{center}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\textwidth}
 \includegraphics[width=2in]{./figures/roc_2014_SuperBowl.png}
-\caption{ROC Curves for the 2014 Super Bowl}
+\caption{2014 Super Bowl}
 \label{fig:roc2014SuperBowl}
-\end{center}
-\end{figure}
-
-\begin{figure}[h]
-\begin{center}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\textwidth}
 \includegraphics[width=2in]{./figures/roc_2014_WorldCup.png}
-\caption{ROC Curves for the 2014 World Cup}
+\caption{2014 World Cup}
 \label{fig:roc2014WorldCup}
-\end{center}
-\end{figure}
+\end{subfigure}
+\caption{Per-Sport ROC Curve Performance}
+\label{fig:joinedPerf}
+\end{figure*}
 
 \subsection{Composite Results}
 
@@ -505,7 +504,7 @@ From these values, we see our approach achieves a higher true positive rate but 
 
 \begin{figure}[hbtp]
 \begin{center}
-\includegraphics[width=3in]{./figures/roc_Comp.png}
+\includegraphics[width=3.25in]{./figures/roc_Comp.png}
 \caption{Composite ROC Curves}
 \label{fig:rocComprehensive}
 \end{center}
@@ -523,21 +522,21 @@ Figures \ref{fig:2013Japan} and \ref{fig:2014Japan} show the frequencies for bot
 From these figures, one can see the token ``earthquake'' sees a significant increase in usage when the earthquake occurs, and our language-agnostic method experiences a similar increase at the same moment for both events.
 That is, both techniques identify the earthquake simultaneously.
 
-\begin{figure}[hbt]
-\begin{center}
-\includegraphics[width=2in]{./figures/2013-japan-quake.png}
+\begin{figure*}
+\centering
+\begin{subfigure}[b]{0.4\textwidth}
+\includegraphics[width=2.5in]{./figures/2013-japan-quake.png}
 \caption{Honshu, Japan Earthquake - 25 October 2013}
 \label{fig:2013Japan}
-\end{center}
-\end{figure}
-
-\begin{figure}[hbtp]
-\begin{center}
-\includegraphics[width=2in]{./figures/2014-japan-quake.png}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\textwidth}
+\includegraphics[width=2.5in]{./figures/2014-japan-quake.png}
 \caption{Iwaki, Japan Earthquake - 11 July 2014}
 \label{fig:2014Japan}
-\end{center}
-\end{figure}
+\end{subfigure}
+\caption{Japanese Earthquake Detection}
+\label{fig:joinedEarthquake}
+\end{figure*}
 
 Given our method's success here, one can now ask what tokens we identified as bursting when the earthquakes occurred.
 Many of the tokens are in Japanese, and tokens at the peak of the earthquake events are shown in Table \ref{tab:japanTokens}.
