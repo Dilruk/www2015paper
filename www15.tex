@@ -52,7 +52,7 @@
 
 \begin{document}
 
-\title{An Automated Method for Identifying Interesting Moments and Events in Social Media Streams}
+\title{A Seedless Method for Identifying Interesting Moments in Social Media Streams}
 %
 % You need the command \numberofauthors to handle the 'placement
 % and alignment' of the authors beneath the title.
@@ -120,10 +120,11 @@ Jen Golbeck\\
 
 \maketitle
 \begin{abstract}
-Existing research into event detection in social media often targets specific events by tracking relevant seed keywords, a method that suffers from significant drawbacks, the most important of which is the inability to discover related, interesting, and unexpected moments that may not specifically mention any predefined keyword. 
-This paper extends such approaches by introducing a general technique for identifying interesting and compelling moments, which often correspond to events, by modeling temporal patterns around bursts and by building a classifier that can identify bursting tokens from Twitter's public sample stream.
-By focusing only on these temporal characteristics, our approach achieves a measure of language agnosticism and general flexibility current techniques lack.
-We then compare a baseline event-detection system with our language-agnostic algorithm in detecting a number of key events across three major sporting competitions: the 2013 World Series, 2014 Super Bowl, and 2014 World Cup.
+Existing event detection research in social media often targets specific events by tracking human-generated seed keywords related to the event.
+While capable, such methods suffer from significant drawbacks, the most important of which is the inability to discover related, interesting, and unexpected moments that may not specifically mention any predefined keyword. 
+This paper extends these approaches by introducing a general technique for identifying compelling moments without seed keywords by modeling temporal patterns around bursts and by building a classifier that can identify bursting tokens from Twitter's public sample stream.
+Since many events are also interesting moments, we are also able to subsume some event detection tasks and achieve a measure of language agnosticism and general flexibility current techniques lack.
+To demonstrate our approach's potential, we compare a baseline event-detection system with our language-agnostic algorithm in detecting a number of key events across three major sporting competitions: the 2013 World Series, 2014 Super Bowl, and 2014 World Cup.
 Results from this comparison show our method demonstrates similar performance in this sports detection domain without the need to pre-specify any event-related information.
 We then go further by applying our sports-based models to the task of identifying earthquakes in Japan and show our method detects large spikes in earthquake-related tokens within two minutes of the actual event.
 \end{abstract}
@@ -134,47 +135,45 @@ We then go further by applying our sports-based models to the task of identifyin
 
 \keywords{event detection, twitter, social networks, temporal features}
 
-%\keywords{ACM proceedings, \LaTeX, text tagging} % NOT required for Proceedings
-
 \section{Introduction}
 
-The shear volume of social media content (hundreds of thousands of comments, statuses, and photos generated per minute on Facebook alone as of 2012 \cite{Pring2012}) has researchers, traditional media organizations, and even advertisers looking to it as a supplement to existing sources of breaking and real-time news.
+Social media's shear volume (hundreds of thousands of comments, statuses, and photos generated per minute on Facebook alone as of 2012 \cite{Pring2012}) has researchers, traditional media organizations, and even advertisers considering it as a supplement to existing sources of breaking and real-time news.
 This push has led to a proliferation of socially enabled systems for detecting noteworthy events across a wide field of domains.
-Such systems generally require a human expert to generate domain-specific seed tokens to track across social networks, and while these systems are able to detect noteworthy events rapidly, they often come with restrictions to make the event-detection task tractable. 
+Such systems generally require a human expert to generate domain-specific seed tokens to track across social networks, and while these systems are able to detect noteworthy events rapidly, they often come with restrictions that make the event-detection task tractable. 
 These constraints often include predefined classes of interesting events, restrictions on target languages, and the need to filter data through expensive language models.
 Resulting systems are brittle and inflexible in application and are difficult to adapt to new domains, languages, or types of events.
-Most importantly, however, the critical weakness is that such approaches preclude any notion of \emph{discovering} interesting events; since little flexibility exists in identifying new tokens automatically, many interesting moments related to the target event are lost because they may not mention a pre-specified token.
+Most importantly though, the critical weakness is that such approaches preclude any notion of \emph{discovering} interesting events; since little flexibility exists in identifying new tokens automatically, many interesting moments related to the target event are lost because they may not mention a pre-specified token.
 Addressing this significant drawback is difficult given the volume of data and noise in social media streams, but the flexibility to discover surprising or unexpected moments across multiple languages, dialects, and domains has many practical advantages currently unsatisfied by existing technology.
 
 To explore these questions, we propose a general method for learning temporal patterns of increased token usage, or bursts, and tracking the frequency of tokens experiencing these bursts to identify interesting moments in social media streams.
 In contrast to existing work, our approach operates without prior knowledge of the target events or any domain-dependent stream filtering.
 We demonstrate this additional flexibility through experiments on Twitter's public sample stream surrounding key moments in large sporting competitions
-Such events are both highly followed and occur regularly, which make them ideal for collecting data and exercising event detection systems but are also complex in that they include multiple types and unpredictable patterns of events around scores, fouls, and other compelling moments of action.
-High-impact sports competitions like the World Cup also have extensive international viewership, so one must also account for multiple languages and different vocabularies of events.
-Given the overlap in interesting moments and events, we experiment on several such sporting competitions to illustrate how our language-agnostic, burst-centric technique performs in comparison to a baseline keyword-centric method while simultaneously providing additional insight across languages and without text normalization or filtering.
-Finally, we apply the models learned in the sporting domain to earthquake detection and show performance commensurate with existing research.
+Sporting events are both highly followed and occur regularly, which make them ideal for collecting data and exercising event detection systems but are also complex in that they include multiple types of and unpredictable patterns of events around scores, fouls, and other compelling moments of action.
+High-impact sports competitions like the World Cup also have extensive international viewership, so one must also account for multiple languages and different vocabularies.
+Given the overlap in interesting moments and events, we compare our language-agnostic, burst-centric technique to a baseline keyword-centric method for detecting events in several such sporting competitions.
+Finally, we transfer the models learned in the sporting domain to earthquake detection and show performance commensurate with existing socially enabled earthquake detection research.
 
 More concisely, this work makes the following contributions:
 %
 \begin{itemize}
 \item We propose a feature set and classifier for seedless, language-agnostic detection of moments of high interest in the Twitter public sample stream.
 \item By comparing our method to an existing event detection baseline technique, we demonstrate our generalization of events to interesting moments is competitive with existing approaches.
-\item It is possible to adapt our sports-related models to domains like earthquakes and still maintain near real-time detection.
+\item It is possible to adapt our sports-related models to other domains like earthquake detection and still maintain comparable levels of performance to domain-specific systems.
 \end{itemize}
 
 \section{Related Work}
 \label{sect:relatedWork}
 
-Though we are focusing on the slightly different problem of identifying ``interesting moments'' in social media streams, we still build on much of the same work as classical event detection, which has fascinated researchers for over twenty years, with new methods, breakthroughs, and technologies emerging often.
+Though we are focusing on the slightly different problem of identifying ``interesting moments'' in social media streams, we still build on much of the same work as classical event detection, which has fascinated researchers for over twenty years.
 This subfield has evolved to integrate the latest available techniques and data sources, starting from early digital newsprint to blogs and now social media.
-Early stages of this research started in the mid-nineties with the Topic Detection and Tracking (TDT) initiative.
+Early stages of this research began in the mid-nineties with the Topic Detection and Tracking (TDT) initiative.
 These programs demonstrated feasibility in detecting new topics from traditional media sources, but as Allan, Papka, and Lavrenko discussed in 1998, these approaches required additional work to see real success \cite{allan1998line}.
-Even in that early work, Allan et al. were already discussing the tradeoffs of using pre-defined keyword sets and event classes when detecting new events, an issue researchers are still addressing today.
+Even in that early work, Allan et al. were already discussing the tradeoffs of using pre-defined keyword sets and event classes when detecting new events, which is still a struggle for researchers today.
 %It is also important to note that, at this nascent stage, topic detection and event detection were relatively synonymous.
 
 Though this early research focused primarily on topic detection from newsprint and traditional media sources, Kleinberg's 2002 paper altered the landscape by applying topic detection to non-traditional data sources like his personal email archive and by introducing what appears to be the first real treatment of burst analysis in ``document streams that arrive continuously over time'' rather than  static collections \cite{Kleinberg:2002:BHS:775047.775061}. 
 Despite introducing the streaming context, Kleinberg cast topic detection as a retrospective, state-based optimization problem.
-Kleinberg then leveraged existing work on hidden Markov models (HMMs) to find sequences of high usage keywords, or bursts, from which he could detect events (and construct complex nested states to develop event hierarchies).
+He then leveraged existing work on hidden Markov models (HMMs) to find sequences of high usage keywords, or bursts, from which he could detect events (and construct complex nested states to develop event hierarchies).
 Kleinberg's examination here laid much of the foundation for the focus on topic bursts that characterized much of the proceeding research in this area.
 
 Following from Kleinberg's work and the increasing size of digital content on the Internet, several new approaches to topic detection emerged.
@@ -191,11 +190,11 @@ Fung et al. extended Kleinberg's burst detection scheme by identifying bursty ke
 %\subsection{Event Detection in Microblogs}
 
 Soon after, the research community began experimenting with alternative media sources like blogs, but real gains came when microblogging platforms began their rise in popularity.
-These microblogging platforms include Twitter and Sina Weibo and are characterized by constrained post sizes (e.g., Twitter constrains user posts to 140 characters) and broadcasting public information.
-A great deal of research exists that explores how the data posted to these networks can be leveraged for social good projects like event detection.
-It is worth noting the majority of this research makes use of data from Twitter's network, likely because Twitter data is relatively easy to acquire using Twitter's APIs.
+These microblogging platforms include Twitter and Sina Weibo and are characterized by constrained post sizes (e.g., Twitter constrains user posts to 140 characters) and broadcasting publicly consumable information.
+Since their rise, a great deal of research has explored how data posted to these networks can be leveraged for social good projects like event detection.
+Much of this work, however, is retrospective in nature and focuses on detecting events after the fact rather than utilizing one of the real advantages in these social networks: unlike newspapers and blogs, these networks produce huge volumes of information that can be processed in \emph{real time}.
 
-One of the most well-known works in detecting events from microblogs is Sakaki, Okazaki, and Matsuo's 2010 paper on detecting earthquakes in Japan using Twitter \cite{Sakaki:2010:EST:1772690.1772777}.
+One of the most well-known works in detecting events from microblog streams is Sakaki, Okazaki, and Matsuo's 2010 paper on detecting earthquakes in Japan using Twitter \cite{Sakaki:2010:EST:1772690.1772777}.
 Sakaki et al. show that not only can one detect earthquakes on Twitter but also that it can be done simply by tracking frequencies of earthquake-related tokens.
 Surprisingly, this approach can outperform geological earthquake detection tools since digital data propagates faster than tremor waves in the Earth's crust.
 Though this research is limited in that it requires pre-specified tokens and is highly domain- and location-specific (Japan has a high density of Twitter users, so earthquake detection may perform less well in areas with fewer Twitter users), it demonstrates a significant use case and the potential of such applications.
@@ -204,9 +203,9 @@ Along with Sakaki et al., 2010 saw two other relevant papers: Lin et al.'s const
 Lin's work is interesting for a number of reasons: first, it circumvents the need for language model-based stop word lists by using probabilistic models to discriminate between common and informational tokens.
 Secondly, Lin's integration of social and structural features into the event detection task demonstrated that real performance enhancements can be gained through non-textual features.
 Thirdly, their paper relates well to Kleinberg's initial work on bursty topic detection by illustrating how his state machine approach is a degenerate case of the PET model.
-Like the majority of its contemporary systems, however, PET also requires seeding with a pre-specified list of tokens to guide its event detection.
+Like the majority of its contemporary systems, however, PET also requires seeding with a pre-specified list of tokens to guide its event detection and concentrates on retrospective per-day topics and events.
 
-Petrovi\'{c} and his colleagues' research on clustering in Twitter avoids the need for seeding keywords by instead focusing on the practical considerations of clustering large streams of data quickly.
+In contrast, Petrovi\'{c} and his colleagues' clustering research in Twitter avoids the need for seed keywords and retrospective analysis by instead focusing on the practical considerations of clustering large streams of data quickly.
 That is, rather than construct a probabilistic mixture model for each token, Petrovi\'{c} focuses on methods for clustering tweets that contain similar tokens into topical clusters.
 While typical clustering algorithms require distance calculations for all pairwise messages, LSH facilitates rapid clustering at the scale necessary to support event detection in Twitter streams by restricting the number of tweets compared to only those within some threshold of similarity.
 Once these clusters are generated, Petrovi\'{c} was able to track their growth over time to determine impact for a given event.
@@ -220,22 +219,21 @@ Besides the heavy filtering of the input data, this approach exhibits notable si
 Becker, Naaman, and Gravano's 2011 paper on identifying events in Twitter also fall under this label of retrospective analysis, but their findings also demonstrate reasonable performance in identifying events in Twitter by leveraging classification tasks to separate tweets into those on ``real-world events'' versus non-event messages \cite{becker2011beyond-tr,becker2011beyond}.
 Similarly, Diao et al. also employ a retrospective technique to separate tweets into global, event-related topics and personal topics \cite{diao2012finding}.
 
-Beyond these works, several domain-specific methods target sporting events as we do\cite{vasudevan2013twitter,Zhao2011,lanagan2011using}.
-Lanagan and Smeaton's work is of particular interest because it relies almost solely on analyzing the per-second volume of messages in Twitter \cite{lanagan2011using}.
-Though relatively naive, this frequency-centric approach is able to detect large bursts on Twitter in high-impact events like the NFL's Super Bowl and can do so without reliance on complex linguist analysis.
-Additionally, such a straightforward approach works very well in a streaming context as very little information must be kept in memory.
-Unfortunately, two main disadvantages exist with this technique: first, detecting a burst would provide evidence of an event, but it would be difficult to gain insight into what that event actually is without additional processing.
-Secondly, as described in their paper, a pure volumetric approach can be hampered by limitations on Twitter's public stream, which has an upper limit on the number of messages per minute one can capture.
-Our approach addresses these deficiencies.
+Beyond these works, several domain-specific research efforts have targeted sporting events specifically\cite{vasudevan2013twitter,Zhao2011,lanagan2011using}.
+Lanagan and Smeaton's work is of particular interest because it relies almost solely on Twitter's per-second message volume \cite{lanagan2011using}.
+Though naive, this frequency approach is able to detect large bursts on Twitter in high-impact events  without reliance on complex linguist analysis and performs well in streaming contexts as little information must be kept in memory.
+Unfortunately, two main disadvantages exist with this technique: first, detecting a burst would provide evidence of an event, but it would be difficult to gain insight into what that event actually was without additional processing.
+Secondly, as described in their paper, a pure volumetric approach is hampered by limitations on Twitter's public stream, which has an upper limit on the number of messages per minute one can capture.
 
 Finally, the most recent work relevant to our research is the 2013 paper by Xie et al. on TopicSketch \cite{xie2013topicsketch}.
 Like us, TopicSketch's authors seek to perform real-time event detection from Twitter streams ``without pre-defined topical keywords'' by maintaining acceleration features across three levels of granularity: individual token, bigram, and total stream.
-As with Petrovi\'{c}'s use of LSH, Xie et al. leverage ``sketches'' and dimensionality reduction to facilitate the event detection task and also relies on language-specific similarities, but Xie et al. also focus only on tweets from Singapore rather than the worldwide stream.
+As with Petrovi\'{c}'s use of LSH, Xie et al. leverage ``sketches'' and dimensionality reduction to facilitate event detection and also relies on language-specific similarities.
+Furthermore, Xie et al. focus only on tweets from Singapore rather than the worldwide stream.
 In contrast, our approach is differentiated primarily in its language-agnosticism and its use of the unfiltered stream from Twitter's global network.
 
 Despite this extensive body of research, it is worth asking how event detection on Twitter streams differs from Twitter's own offerings on ``Trending Topics,'' which they make available to all their users.
 When a user visit's Twitter's website, she is immediately greeted with her personal feed as well as a listing of trending topics for her city, country, worldwide, or nearly any location she chooses.
-These topics offer a great deal of insight into the current popular topics on Twitter, but the main differentiating factor we try to identify is that these popular topics are not necessarily connected to specific events that we target.
+These topics offer insight into the current popular topics on Twitter, but the main differentiating factor is that these popular topics are not necessarily connected to specific events.
 Rather, popular memetic content like ``\#MyLovelifeInMoveTitles'' often appear on the list of trending topics.
 Additionally, Twitter monetizes these trending topics as a form of advertising \cite{Sydell2011}.  
 These trending topics also can be more high-level than the point events that we seek to identify: for instance, during the World Cup, particular matches or the tournament in general were identified as trending topics by Twitter, but individual events like goals or penalty cards in those matches were not.
@@ -244,8 +242,9 @@ It should be clear then that Twitter's trending topics serves a different purpos
 \section{Techniques for Streaming Event Detection}
 \label{sect:methods}
 
-This paper's primary goal is to demonstrate the feasibility of detecting highly interesting moments from social media streams by identifying temporal bursts in token usage and analyzing their frequencies (we refer to this language-agnostic, burst-centric technique as LABurst).
-Since such compelling instances often align with significant events, we compare LABurst's performance with that of a baseline seed-token technique in detecting specific events within a variety of major sporting competitions.
+This paper's primary goal is to demonstrate the feasibility of detecting highly interesting moments from social media streams by identifying bursting tokens and analyzing their frequencies (we refer to this language-agnostic, burst-centric technique as LABurst).
+Since compelling moments often align with significant events, we compare LABurst's performance with that of a baseline seed-token technique in detecting specific events within a variety of major sporting competitions.
+This comparison shows our more general approach can still perform on par with existing domain-specific methods.
 Then, we show applications outside the sports domain by applying LABurst to the task of detecting earthquakes using social media similar to Sakaki et al.
 This section defines these detection tasks, presents our experimental framework, details the data sources used, and outlines both the baseline technique and our LABurst method.
 
@@ -259,12 +258,12 @@ This section defines these detection tasks, presents our experimental framework,
 %These instantaneous events are interesting and hard to identify because one may not know tokens relevant to these brief events until the event is occurring, and by the time one can react, such a short-term event would already be over. 
 %
 The term ``event'' is vague and overridden in many contexts, with varying definitions from existing works like Allan et al. to an entire ontology devoted to describing the term (Raimond and Abdallah's Event Ontology) \cite{Raimond2007,allan1998line}.
-By instead focusing on interesting moments in time, we avoid this convoluted myriad of definitions and restrict ourselves to detecting \emph{instantaneous} moments of interest in the real world.
+By instead focusing on interesting moments in time, we avoid this myriad of definitions and restrict ourselves to detecting \emph{instantaneous} moments of interest in the real world.
 Examples of such moments include a point scored in a game, a single explosion during a particular terrorist attack, or a discrete tremor in an earthquake.
 These instances are interesting and hard to identify because one may not know tokens relevant to these brief events until the event is occurring, and by the time one can react, the moment has passed. 
 
 Corresponding to these brief moments, we define a burst in a token's usage as a sudden increase in the frequency with which that token appears in a data stream, and we refer to such tokens as ``bursty.''
-It's worth noting bursts need not be symmetric; that is, a drastic uptick in frequency need not be followed by an equally dramatic fall in usage.
+These bursts need not be symmetric in that a drastic uptick in frequency need not be followed by an equally dramatic fall in usage.
 
 If we let $E$ denote the set of all minutes $t$ in which an event occurs, then the indicator function $\mathbbm{1}_E(t)$ returns a $1$ for all times $t$ in which an event occurs, and $0$ for all other values of $t$. 
 We can now define the event detection task as constructing a function that approximates this indicator function $\mathbbm{1}_E(t)$.
@@ -279,14 +278,16 @@ True positives/negatives then follow as expected.
 \subsection{Experimental Framework}
 
 Having established the vocabulary and tasks, we can now turn our attention to the actual mechanics of comparing our LABurst technique with the baseline.
-Sporting competitions adhere well to our definition of event in that a sporting event has a well-defined place and time and can contain many unpredictable sub-events, such as scores, fouls, ejections, or other dramatic moments of play.
+Sporting competitions are full of interesting and unpredictable moments, such as scores, fouls, ejections, or other dramatic instances of play.
 Additionally, sporting events with large followings occur fairly often and with a good degree of regularity, greatly simplifying data collection.
-Our main experiment here is a comparative study in detecting a collection of events in three major sporting competitions: the 2013 Major League Baseball (MLB) World Series, 2014 National Football League (NFL) Super Bowl, and 2014 F\'{e}d\'{e}ration Internationale de Football Association (FIFA) World Cup.
-Specifically, for the 2013 World Series between the Boston Red Sox and the St. Louis Cardinals, we explore only the final two games on 28 October and 30 October of 2013.
-Similarly for the 2014 World Cup, our analysis covers the final two matches of tournament: the 12 July match between the Netherlands and Brazil for third place, and the final match on 13 July between Germany and Argentina for first place.
-Since the 2014 Super Bowl was a single-day competition, we covered the entire game between the Seatlle Seahawks and the Denver Broncos on 2 February 2014.
 
-In each competition, we extract the times of four basic types of events (beginning of the game, end of the game, scores, and penalties) from sport journalism articles, game highlights, box scores, blog posts, and social media messages to construct game timelines.
+Our main experiment is a comparative study in detecting a collection of events in three major sporting competitions: the 2013 Major League Baseball (MLB) World Series, 2014 National Football League (NFL) Super Bowl, and 2014 F\'{e}d\'{e}ration Internationale de Football Association (FIFA) World Cup.
+Specifically, for the 2013 World Series between the Boston Red Sox and the St. Louis Cardinals, we explore the final two games on 28 October and 30 October of 2013.
+Similarly for the 2014 World Cup, our analysis covers the final two matches of tournament: the 12 July match between the Netherlands and Brazil for third place, and the final match on 13 July between Germany and Argentina for first place.
+Since the 2014 Super Bowl was a single-day competition, we covered the entire game between the Seattle Seahawks and the Denver Broncos on 2 February 2014.
+
+In each competition, we extract the times of four basic types of events: beginning of the game, end of the game, scores, and penalties.
+We capture these events and times from sport journalism articles, game highlights, box scores, blog posts, and social media messages.
 Table \ref{tab:eventStats} provides some statistics on the events we identified.
 %
 \begin{table}[htdp]
@@ -306,8 +307,10 @@ World Cup & 2 & 2 & 4 & 9 & 17 \\ \hline
 
 These events then comprise the ground truth against which we compare LABurst and the baseline.
 That is, positive instances of events are those minutes in which one of these events occurs, and negative instances are those minutes in which no known sports-related event occurs.
-This data comprises our testing data set such that neither the baseline nor LABurst are trained on or evaluated against this data prior to evaluation and reporting.
-From this data, we generate receiver operating characteristic (ROC) curves for both LABurst and the baseline by varying a threshold parameter across each sport and then a composite ROC curve for all sports and compare the area under the curves (AUCs) for both methods.
+This data was also excluded from development such that neither the baseline nor LABurst are trained on or evaluated against this data prior to experimentation.
+From this data, we generate receiver operating characteristic (ROC) curves for both LABurst and the baseline across each sport and then construct a composite ROC curve for all sports.
+We then evaluate relative performance between the two approaches by comparing the area under the curves (AUCs) for both methods.
+To form these ROC curves, varied threshold parameters for each method.
 In the baseline approach, our threshold parameter controls the minimum difference between current frequency and average frequency over the sliding window.
 For our LABurst method, the ROC curve is generated by varying the minimum number of tweets a window must contain for an event to be detected.
 The AUC of the ROC curve is useful in this instance because it is robust against imbalanced classes, which we expect to see in the event detection task.
@@ -378,7 +381,7 @@ World Cup & ``goal'', ``gol'', ``golazo'', ``score'', ``foul'', ``penalty'', ``c
 \subsection{Language-Agnostic Event Detection}
 
 As mentioned, existing research achieves acceptable performance by tracking frequencies for a small set of bursty keywords when a real-world event occurs.
-We extend such approaches by automatically identifying these bursty tokens and detecting events based on those frequencies.
+We extend such approaches by automatically identifying these bursty tokens and detecting interesting moments based on those frequencies.
 To this end, we constructed a set of temporal features to model the characteristics of a bursty token.
 Like other approaches, these temporal features were built around a sliding window of several minutes with each window further divided into overlapping slices. %as shown in Figure \ref{fig:windowSlices}.
 In this manner, we construct a windowed time series containing the most recent frequencies for each token, from which our features are generated.
@@ -421,14 +424,14 @@ We normalize each window's feature vectors into the range $[0, 1]$ to avoid bias
 
 \subsubsection{Training the Ensemble Classifier}
 
-Discriminating between bursty tokens and stop words necessitated the use of a classification algorithm, and many different such algorithms exist.
+Discriminating between bursty tokens and stop words necessitates the use of a classification algorithm, and many different such algorithms exist.
 In particular, the Scikit-learn Python package provides implementations for SVMs and RFs as well as an implementation of the ensemble classifier AdaBoost \cite{scikit-learn}.
 Both SVMs and RFs have tunable parameters to select before integrating into AdaBoost, however, so we employed a grid search strategy to select parameters based on the F1 scores on our training and testing data.
 
-For SVMs, we used the radial basis kernel, which has two parameters: cost $c$ and kernel coefficient $\gamma$.
-In searching the space of $c$ and $\gamma$, the grid covered powers of two such that $c = 2^x$, $x \in [-2, 10]$ and $\gamma = 2^y$, $y \in [-2, 5]$.
-For each pair of parameter values, we trained thirty different classifiers using repeated random subsampling, took the average F1 score, and selected the parameter set with the highest F1 score.
-Selecting parameter values for RFs was similar for the number of estimators $n$ and feature count $c'$ such that $n = 2^x$, $x \in [0, 10]$ and $c' = 2^y$, $y \in [1, 11]$.
+For SVMs, we use the radial basis kernel, which has two parameters: cost $c$ and kernel coefficient $\gamma$.
+In searching the space of $c$ and $\gamma$, the grid covers powers of two such that $c = 2^x$, $x \in [-2, 10]$ and $\gamma = 2^y$, $y \in [-2, 5]$.
+For each pair of parameter values, we train thirty different classifiers using repeated random subsampling, take the average F1 score, and select the parameter set with the highest F1 score.
+Selecting parameter values for RFs is similar for the number of estimators $n$ and feature count $c'$ such that $n = 2^x$, $x \in [0, 10]$ and $c' = 2^y$, $y \in [1, 11]$.
 This training procedure yielded the results shown in Table \ref{tab:scores}.
 
 \begin{table}[htdp]
@@ -446,14 +449,14 @@ RF & trees = 128, & 0.575301 \\
 \label{tab:scores}
 \end{table}
 
-These two classifiers were then combined using the Scikit-learn's AdaBoost implementation with four estimators.
-We applied the resulting classifier to all training data and expanded our set of known bursty tokens with those tokens that had a greater than 90\% likelihood of being part of the bursty class in one round of self-training (Scikit's AdaBoost implementation provides label likelihoods).
-Regarding sliding window and slice size, preliminary investigations suggested a window size of ten minutes with a slice size of three minutes (each slice overlapped the next by two minutes) exhibited acceptable results.
+These two classifiers are then combined using the Scikit-learn's AdaBoost implementation with four estimators.
+We apply the resulting classifier to all training data and expand our set of known bursty tokens with those tokens that had a greater than 90\% likelihood of being part of the bursty class in one round of self-training (Scikit's AdaBoost implementation provides label likelihoods).
+Regarding sliding window and slice size, preliminary investigations suggest a window size of ten minutes with a slice size of three minutes (each slice overlapped the next by two minutes) exhibited acceptable results.
 
 \section{Experimental Results}
 \label{sect:results}
 
-To restate, the research question posed in this work is to determine whether a language-agnostic, streaming event detection scheme can perform as well as a domain-specific frequency-based method in detecting events in sporting competitions.
+To restate, the research question posed in this work is to determine whether a language-agnostic scheme for detecting moments of high interest can perform as well as a domain-specific frequency-based method in detecting events in sporting competitions.
 We answer this question across three separate sporting events: the final two games of the 2013 MLB World Series, the 2014 NFL Super Bowl, and the final two matches of the 2014 FIFA World Cup.
 These events were completely new data sets for both the baseline and LABurst and were not included in training, so any events detected by either algorithm were previously unseen events.
 
@@ -496,7 +499,7 @@ Unlike the World Series and Super Bowl, however, the difference between the base
 
 To compare comprehensive performance, we look to Figure \ref{fig:rocComprehensive}, which shows ROC curves for both methods across all three event types.
 From this figure, we see the two methods perform nearly identically with AUC values of 0.7187 for the baseline and 0.7052 for our language-agnostic technique.
-Assuming equal cost for false positives and false negatives and optimizing for the largest difference between true positive rate (TPR) and false positive rate (FPR), the baseline method shows 0.5581 and 0.1408 respectively with a difference of 0.4174 at a threshold value of 13.2.
+Assuming equal cost for false positives and false negatives and optimizing for the largest difference between true positive rate (TPR) and false positive rate (FPR), the baseline method shows a TPR of 0.5581 and FPR of 0.1408 with a difference of 0.4174 at a threshold value of 13.2.
 Our language-agnostic method, on the other hand, has a TPR of 0.7105 and FPR of 0.3518 with a difference of 0.3587 at a threshold value of 2.
 From these values, we see our approach achieves a higher true positive rate but at a cost of a higher false positive rate as a result.
 
@@ -510,9 +513,9 @@ From these values, we see our approach achieves a higher true positive rate but 
 
 \subsection{Earthquake Detection}
 
-Detecting sub-events within sporting competitions as described above is a useful task for areas like advertising or automated highlight generation, but a more interesting and worthwhile task would be to detect higher-impact events like natural disasters.
-The typical frequency-based approach is more difficult here as it is impossible to know what events are about to happen, and a list of target keywords to detect all such events would be long, leading to false positives.
-Our method could be highly beneficial here as one would not need to know the target language or other pre-specified information.
+Detecting interesting moments within sporting competitions as described above is a useful task for areas like advertising or automated highlight generation, but a more compelling and worthwhile task would be to detect higher-impact events like natural disasters.
+The typical frequency-based approach is difficult here as it is impossible to know what events are about to happen where, and a list of target keywords to detect all such events would be long, leading to false positives.
+Our method could be highly beneficial here as one need not know the target language or other pre-specified information.
 Since Sakaki showed the feasibility of detecting earthquakes using Twitter, we pulled Twitter data for two earthquakes in Japan: a 7.1-magnitude quake off the coast of Honshu on 25 October 2013, and a 6.5-magnitude quake off the coast of Iwaki on 11 July 2014.
 
 To determine whether our approach could detect these earthquake events, we applied the classifier trained and tested for the sporting domain to these Twitter sets and tracked the frequency of the term ``earthquake'' simultaneously.
@@ -538,7 +541,7 @@ That is, both techniques identify the earthquake simultaneously.
 
 Given our method's success here, one can now ask what tokens we identified as bursting when the earthquakes occurred.
 Many of the tokens are in Japanese, and tokens at the peak of the earthquake events are shown in Table \ref{tab:japanTokens}.
-We also extracted tweets from our data that contain the highest number of these tokens for the given time period, a selection of which include, \begin{CJK}{UTF8}{\myfont}``地震だあああああああああああああああああああああ,'' ``今回はチート使ってないから地震わからなかった,'' and ``地震だー.'' \end{CJK}
+We also extracted several tweets that contain the highest number of these tokens for the given time period, a selection of which include, \begin{CJK}{UTF8}{\myfont}``地震だあああああああああああああああああああああ,'' ``今回はチート使ってないから地震わからなかった,'' and ``地震だー.'' \end{CJK}
 Google Translate\footnote{http://translate.google.com} translates these tweets as ``Ah ah ah ah ah ah ah ah ah Aa's earthquake,'' ``I did not know earthquake because not using cheat this time,'' and ``Over's earthquake'' respectively.
 
 \begin{table}[htdp]
@@ -558,7 +561,7 @@ Iwaki, Japan -- 11 July 2014 & antojo, comida, sammy, \begin{CJK}{UTF8}{\myfont}
 \label{sect:analysis}
 
 In comparing the baseline and language-agnostic techniques, it is important to understand the baseline provides little in the way of discovering previously unknown tokens or significant events that do not conform to a priori knowledge.
-The real power of the language-agnostic method described herein addresses such deficiencies directly by identifying specific tokens that burst along with a significant event \emph{and} by capturing unexpected events.
+Our language-agnostic method's real advantage is that it not only directly supports this notion of discovery but also provides direct insight into these moments of high interest by tagging relevant bursting tokens.
 
 \subsection{Identifying Event-Related Tokens}
 
@@ -593,7 +596,7 @@ Finally, the last artifact of note is that the set of bursty tokens displayed in
 Since these words are semantically similar but syntactically dissimilar, typical normalization schemes could not capture these connections.
 Instead, capturing these words in the baseline would require a pre-specific keyword list in all possible languages or the inclusion of an expensive machine translation system that was also capable of normalizing within different languages (to collapse ``goool'' down to ``gol'' for example).
 
-\subsection{Unexpected Event Discovery}
+\subsection{Discovering Unanticipated Moments}
 \label{sect:eventDiscovery}
 
 One particular weakness present in the baseline is that it is unable to capture unexpected events or events that do not conform to the keyword list.
@@ -604,7 +607,7 @@ We can see instances of such omissions in the last game of World Cup.
 Figure \ref{fig:worldCupFreqs} shows the frequencies for target tokens for the baseline in blue and bursty tokens for our method in green.
 From this graph, we can see the first, obvious incidence in Peak \#1 where our bursty method exhibits a peak that is missed by the baseline in the first few points of data.
 The primary tokens appearing in this peak are ``puyol,'' ``gisele,'' and ``bundchen,'' which correspond to former Spanish player Carles Puyol and model Gisele Bundchen, who presented the World Cup trophy prior to the match.
-Peak \#2, slightly more than eighty minutes into the data (which is sixty minutes into the match), our burst analysis sees another peak that is otherwise relatively minor in the baseline graph.
+At peak \#2, slightly more than eighty minutes into the data (which is sixty minutes into the match), our burst analysis sees another peak that is otherwise relatively minor in the baseline graph.
 Upon further exploration, tokens present in this peak refer to Argentina's substituting in Ag\"{u}ero for Lavezzi at the beginning of the match's second half.
 
 \begin{figure}[hbtp]
@@ -615,7 +618,7 @@ Upon further exploration, tokens present in this peak refer to Argentina's subst
 \end{center}
 \end{figure}
 
-Given our detection of these additional non-score-/non-penalty-related events, it is perhaps unsurprising that our burst detection technique exhibits a higher false-positive rate compared to the baseline.
+Given our detection of these moments of interest that do not related to score or penalty events, it is perhaps unsurprising that our burst detection technique exhibits a higher false-positive rate compared to the baseline.
 Since our approach is both language- and domain-agnostic, it makes sense that it would detect additional events beyond the game start/end, score, and penalty events our data counts as ground truth.
 A better comparison between the accuracies of the two approaches may be to identify only those peaks in which the keywords used in the baseline are identified as bursty in our method, but such a test disregards our approach's additional power.
 
@@ -623,11 +626,11 @@ A better comparison between the accuracies of the two approaches may be to ident
 
 In comparing these two event detection methods, we must also address their abilities to handle streaming data and the lag between an event and its detection by either of these mechanisms.
 The baseline technique processes data minute by minute and therefore has at most a minute of lag between input and discovery.
-Our technique, on the other hand, exhibits a lag equal to the slice size, which in the case of this paper is three minutes.
+Our technique, on the other hand, exhibits a lag of at most the slice size, which in the case of this paper is three minutes.
 
 Another important aspect to consider is the length of time in which an event's peak persists.
 For the baseline, event detection achieves its highest accuracy when events are flagged in the minute they occur and the minute immediately following.
-Our approach logically follows the slice length such that events persist for three minutes.
+Our approach logically follows the slice length such that events persist for approximately three minutes.
 
 \section{Future Work}
 \label{sect:future}
@@ -636,7 +639,7 @@ Our approach logically follows the slice length such that events persist for thr
 While the experiments outlined herein establish the utility of language-agnostic event detection, several avenues of research can follow up on this foundation.
 First, though this work is applied in the streaming context, little effort was made to enforce near-real-time computation constraints; with the growing popularity of stream-centric processing frameworks like Apache Storm (as used by Petrovi\'{c} et al.) or Apache Spark Streaming, one has considerable latitude in exploring ways to enforce such constraints.
 Secondly, our selection of classifiers used in our ensemble was based primarily on ease of use given our features; deep learning systems are more complex but could provide enhanced capabilities in detecting bursting patterns in social media streams.
-Thirdly, we specifically targeted short-term, instantaneous events, but it is possible that these same techniques could be applied at different levels of granularity (per hour or per day for instance) to detect events of larger scales; one could then apply Kleinberg's notion of event hierarchies across multiple temporal granularities and track different aspects of the same event.
+Thirdly, we specifically targeted moments of high interest, which often correspond to instantaneous events, but it is possible that these same techniques could be applied at different levels of granularity (per hour or per day for instance) to detect events of larger scales; one could then apply Kleinberg's notion of event hierarchies across multiple temporal granularities and track different aspects of the same event.
 Additionally, an implicit assumption made in this work is that tokens that experience bursts at the same time are related in some way, which allows us to detect events using token frequency; this assumption has interesting consequences with regarding to language-agnostic topic detection.
 That is, one could cluster tokens with similar temporal signatures to identify topics across languages, which would otherwise be impossible if one were to rely solely on semantic similarity or would require applying machine translation to reduce all text in the stream to the same language.
 Finally, though this paper exclusively leverages data from Twitter's public stream, our techniques should be applicable to streams from other social networks as well, and how events burst on more media-centered networks like Flickr or Pinterest might reveal interesting photographic representations of an event.
@@ -644,13 +647,13 @@ Finally, though this paper exclusively leverages data from Twitter's public stre
 \section{Conclusions}
 \label{sect:conlusions}
 
-To revisit our motivations, the goal for this experiment was to demonstrate the feasibility of detecting events and event-related tokens through analyzing temporal characteristics from unfiltered Twitter data streams.
-While many social media-based event detection systems require some form of query-based filtering and language model processing, our approach is more flexible, lighter weight, and easily adaptable to different domains.
+To revisit our motivations, the goal for this experiment was to demonstrate the feasibility of detecting highly compelling or interesting moments through analyzing temporal characteristics from unfiltered Twitter data streams.
+While many social media-based event detection systems require some form of prespecified seed list and/or language model processing, our approach is more flexible, lighter weight, and easily adaptable to different domains.
 Our results show that by leveraging temporal characteristics to identify bursty tokens and using frequency of these bursty tokens, we can detect significant events across a collection of disparate sporting competitions with a level of performance nearly equivalent to an existing, domain-specific baseline.
 
 Similar performance to the baseline is only part of the story, however, as our approach offers notable flexibility in identifying bursting tokens without normalization and across language boundaries.
 With this versatility also comes support for event description since we no longer rely on predetermined keywords; that is, we can get a sense of the occurring event by inspecting the bursty tokens.
-Finally, these advantages culminate in powerful tool for event \emph{discovery} in that it can detect events we did not expect to occur, regardless of the source language, which makes this technique particularly useful for journalists and newswire sources who have a need to know about events on the ground, as they happen but cannot know a priori what the event may be about in all cases.
+Finally, these advantages culminate in powerful tool for event \emph{discovery} in that it can unanticipated instances of high interest that we did not expect, regardless of the source language, which makes this technique particularly useful for journalists and newswire sources who have a need to know about events on the ground, as they happen but cannot know a priori what the event may be about in all cases.
 
 %\end{document}  % This is where a 'short' article might terminate
 
