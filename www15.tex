@@ -38,6 +38,8 @@
 \usepackage{ucs} 
 \usepackage[encapsulated]{CJK} 
 \newcommand{\myfont}{gbsn}
+\usepackage[usenames]{color}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
 
 %\usepackage{fontspec} 
 %\usepackage{xeCJK}
@@ -277,6 +279,9 @@ True positives/negatives then follow as expected.
 
 \subsection{Experimental Framework}
 
+\red{So my issue with this section is that it combines the evaluation framework, e.g., how you do ROC computation, with the data collection and ground truth determination. Here you really just want to say, the input to the ground truth is a vector of indicator variables (for each time slice), from which you construct an ROC curve. Leave the description of the data gathering to a late section. My suggested reorg would be Section (3): problem def and eval frameworkl Section (4) baseline, Section (5) LABurst, Section (6) Experimental Setup}
+
+
 Having established the vocabulary and tasks, we can now turn our attention to the actual mechanics of comparing our LABurst technique with the baseline.
 Sporting competitions are full of interesting and unpredictable moments, such as scores, fouls, ejections, or other dramatic instances of play.
 Additionally, sporting events with large followings occur fairly often and with a good degree of regularity, greatly simplifying data collection.
@@ -304,6 +309,8 @@ World Cup & 2 & 2 & 4 & 9 & 17 \\ \hline
 \end{center}
 \label{tab:eventStats}
 \end{table}
+
+\red{So you've described the test data, right? What about the training data?}
 
 These events then comprise the ground truth against which we compare LABurst and the baseline.
 That is, positive instances of events are those minutes in which one of these events occurs, and negative instances are those minutes in which no known sports-related event occurs.
@@ -381,6 +388,7 @@ World Cup & ``goal'', ``gol'', ``golazo'', ``score'', ``foul'', ``penalty'', ``c
 \subsection{Language-Agnostic Event Detection}
 
 As mentioned, existing research achieves acceptable performance by tracking frequencies for a small set of bursty keywords when a real-world event occurs.
+\red{Make clear here that the seed list IS NOT an input to your algorithm... (right?)}
 We extend such approaches by automatically identifying these bursty tokens and detecting interesting moments based on those frequencies.
 To this end, we constructed a set of temporal features to model the characteristics of a bursty token.
 Like other approaches, these temporal features were built around a sliding window of several minutes with each window further divided into overlapping slices. %as shown in Figure \ref{fig:windowSlices}.
