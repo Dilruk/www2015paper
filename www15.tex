@@ -145,10 +145,11 @@ One might respond to this weakness by extending the seed keywords to include pen
 Furthermore, relying on predefined keywords constrains these systems only to languages represented in the seed keyword set, which is a significant issue for events of international interest like the World Cup or in areas that do not speak the target languages.
 Given the shear volume of social media data (hundreds of thousands of comments, statuses, and photos generated per minute on Facebook alone as of 2012 \cite{Pring2012}), we think machine learning could be an ideal solution for addressing these shortcomings.
 
-To explore these questions, we propose a general method for learning temporal patterns of increased token usage, or bursts, and tracking the frequency of tokens experiencing these bursts to identify interesting moments in social media streams. 
+To explore these questions, we propose a general method for learning temporal patterns of increased token usage (called bursts) and tracking the frequency of tokens experiencing these bursts to identify interesting moments in social media streams. 
 In contrast to existing work, our approach operates without prior knowledge of the target events or any domain-dependent stream filtering.
 We demonstrate this additional flexibility through experiments on Twitter's public sample stream surrounding key moments in large sporting competitions
-Sporting events are both highly followed and occur regularly, which make them ideal for collecting data and exercising event detection systems but are also complex in that they include multiple types of and unpredictable patterns of events around scores, fouls, and other compelling moments of action.
+Sporting events are both highly followed and occur regularly, which make them ideal for collecting data and exercising event detection systems.
+Such events are also complex in that they include multiple types and unpredictable patterns of events around scores, fouls, and other compelling moments of action.
 High-impact sports competitions like the World Cup also have extensive international viewership, so one must also account for multiple languages and different vocabularies.
 Given the overlap in interesting moments and events, we compare our language-agnostic, burst-centric technique to a baseline keyword-centric method for detecting events in several such sporting competitions.
 Finally, we transfer the models learned in the sporting domain to earthquake detection and show performance commensurate with existing socially enabled earthquake detection research.
