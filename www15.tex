@@ -147,7 +147,7 @@ Given the shear volume of social media data (hundreds of thousands of comments, 
 
 To explore these questions, we propose a general method for learning temporal patterns of increased token usage (called bursts) and tracking the frequency of tokens experiencing these bursts to identify interesting moments in social media streams. 
 In contrast to existing work, our approach operates without prior knowledge of the target events or any domain-dependent stream filtering.
-We demonstrate this additional flexibility through experiments on Twitter's public sample stream surrounding key moments in large sporting competitions
+We demonstrate this additional flexibility through experiments on Twitter's public sample stream surrounding key moments in large sporting competitions.
 Sporting events are both highly followed and occur regularly, which make them ideal for collecting data and exercising event detection systems.
 Such events are also complex in that they include multiple types and unpredictable patterns of events around scores, fouls, and other compelling moments of action.
 High-impact sports competitions like the World Cup also have extensive international viewership, so one must also account for multiple languages and different vocabularies.
@@ -171,7 +171,7 @@ Though we are focusing on the slightly different problem of identifying ``intere
 This subfield has evolved to integrate the latest available techniques and data sources, starting from early digital newsprint to blogs and now social media.
 Early stages of this research began in the mid-nineties with the Topic Detection and Tracking (TDT) initiative.
 These programs demonstrated feasibility in detecting new topics from traditional media sources, but as Allan, Papka, and Lavrenko discussed in 1998, these approaches required additional work to see real success \cite{allan1998line}.
-Even in that early work, Allan et al. were already discussing the tradeoffs of using pre-defined keyword sets and event classes when detecting new events, which is still a struggle for researchers today.
+Even in that early work, Allan et al. were already discussing the tradeoffs of using pre-defined keyword sets and event classes when detecting new events.
 %It is also important to note that, at this nascent stage, topic detection and event detection were relatively synonymous.
 
 Though this early research focused primarily on topic detection from newsprint and traditional media sources, Kleinberg's 2002 paper altered the landscape by applying topic detection to non-traditional data sources like his personal email archive and by introducing what appears to be the first real treatment of burst analysis in ``document streams that arrive continuously over time'' rather than  static collections \cite{Kleinberg:2002:BHS:775047.775061}. 
@@ -239,7 +239,7 @@ When a user visit's Twitter's website, she is immediately greeted with her perso
 These topics offer insight into the current popular topics on Twitter, but the main differentiating factor is that these popular topics are not necessarily connected to specific events.
 Rather, popular memetic content like ``\#MyLovelifeInMoveTitles'' often appear on the list of trending topics.
 Additionally, Twitter monetizes these trending topics as a form of advertising \cite{Sydell2011}.  
-These trending topics also can be more high-level than the point events that we seek to identify: for instance, during the World Cup, particular matches or the tournament in general were identified as trending topics by Twitter, but individual events like goals or penalty cards in those matches were not.
+These trending topics also can be more high-level than the interesting moments we seek to identify: for instance, during the World Cup, particular matches or the tournament in general were identified as trending topics by Twitter, but individual events like goals or penalty cards in those matches were not.
 It should be clear then that Twitter's trending topics serves a different purpose than the streaming event detection described herein.
 
 \section{Streaming Event Detection}
@@ -266,8 +266,8 @@ Such impactful moments are often accompanied with significant and sudden increas
 Where the typical method relies on tracking predefined tokens and identifying points in which those tokens experience bursts, we instead identify these bursty signals across all tokens via machine learning and use their frequency as the primary indicator that a moment of high interest is occurring.
 As mentioned, since many events experience such bursts, we subsume a number of event detection tasks with this generalization.
 
-More formally, if we let $E$ denote the set of all minutes $t$ in which an interesting moment occurs, then the indicator function $\mathbbm{1}_E(t)$ returns a $1$ for all times $t$ in which an event occurs, and $0$ for all other values of $t$. 
-We can now define the event detection task as constructing a function that approximates this indicator function $\mathbbm{1}_E(t)$.
+More formally, if we let $E$ denote the set of all minutes $t$ in which an interesting moment occurs, then the indicator function $\mathbbm{1}_E(t)$ returns a $1$ for all times $t$ in which such a moment occurs, and $0$ for all other values of $t$. 
+We can then define the moment detection task as constructing a function that approximates this indicator function $\mathbbm{1}_E(t)$.
 To account for possible lag in experiencing the event, typing out a message about the event, and the message actually posting to a social media server, we include a parameter $\tau$ to control for tolerance of delay.
 This parameter relaxes the task slightly by constructing the set $E'$ where, for all $t \in E$, $t, t+1, t+2, ..., t+\tau \in E'$.
 Since our evaluation is a comparison between two methods that share the same ground truth, and controlling $\tau$ affects the ground truth consistently for both methods, comparative results should be unaffected.
@@ -282,7 +282,7 @@ In the baseline approach, our threshold parameter controls the minimum differenc
 For our LABurst method, the ROC curve is generated by varying the minimum number of tweets a window must contain for an event to be detected.
 The AUC of the ROC curve is useful in this instance because it is robust against imbalanced classes, which we expect to see in the event detection task.
 
-We then follow up with an additional experiment of whether LABurst can detect earthquake events as inspired by Sakaki et al.
+We then follow up with an additional experiment of whether LABurst can detect moments in which an  earthquake strikes as inspired by Sakaki et al.
 Rather than generating ROC curves for this comparison, we take a more straightforward approach and compare lag between the actual earthquake event and the point in time in which the two methods detect the earthquake.
 
 
@@ -483,7 +483,7 @@ For the 2013 World Series, LABurst and the baseline techniques exhibited similar
 Figure \ref{fig:roc2013WorldSeries} shows the how these two curves compare graphically, and we can see that neither curve completely dominates the other, and both perform better than random guessing.
 In the Super Bowl, the difference between the two mechanisms (shown in Figure \ref{fig:roc2014SuperBowl}) is more pronounced with a difference in AUC near 0.1, with the baseline performing better.
 LABurst exhibited a much higher false-positive rate in comparison to the baseline, which may be explained later in \ref{sect:eventDiscovery}.
-Unlike the World Series and Super Bowl, however, the difference between the baseline and LABurst shows our LABurst method actually outperforms the baseline here with a difference in AUC of approximately 0.05.
+Unlike the World Series and Super Bowl, however, the difference between the baseline and LABurst during the 2014 World Cup as seen in Figure \ref{fig:roc2014WorldCup} shows our LABurst method actually outperforms the baseline in this instance with a difference in AUC of approximately 0.05.
 
 \begin{figure*}
 \centering
