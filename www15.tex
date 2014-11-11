@@ -159,7 +159,7 @@ More concisely, this work makes the following contributions:
 \begin{itemize}
 \item We propose a feature set and classifier for the language-agnostic discovery of moments of high interest in the Twitter public sample stream. Importantly, our approach does {\it not} require a list of manually-defined keywords as input.
 
-\item We demonstrate that our approach is competitive with respect to a baseline the relies on manually-defined keywords.
+\item We demonstrate our approach is competitive with respect to a baseline the relies on manually-defined keywords.
 
 \item It is possible to adapt our sports-related models to other domains like earthquake detection and still maintain comparable levels of performance to domain-specific systems.
 \end{itemize}
@@ -260,15 +260,13 @@ This section defines these detection tasks, presents our experimental framework,
 %Examples of such instantaneous events include a point scored in a game, a single explosion during some terrorist attack, or a particular tremor in an earthquake.
 %These instantaneous events are interesting and hard to identify because one may not know tokens relevant to these brief events until the event is occurring, and by the time one can react, such a short-term event would already be over. 
 %
-The term ``event'' is vague and overridden in many contexts, with varying definitions from existing works like Allan et al. to an entire ontology devoted to describing the term (Raimond and Abdallah's Event Ontology) \cite{Raimond2007,allan1998line}.
-By instead focusing on interesting moments in time, we avoid this myriad of definitions and restrict ourselves to detecting \emph{instantaneous} moments of interest in the real world.
-Examples of such moments include a point scored in a game, a single explosion during a particular terrorist attack, or a discrete tremor in an earthquake.
-These instances are interesting and hard to identify because one may not know tokens relevant to these brief events until the event is occurring, and by the time one can react, the moment has passed. 
+Given the ambiguities in the current literature's definition of an ``event'' (varying definitions from existing works like Allan et al. to an entire ontology devoted to describing the term \cite{Raimond2007,allan1998line}), we instead focus on identifying interesting moments in time.
+This task is difficult because one may not know tokens relevant to these brief instances until the moment occurs, and by the time one can react, the moment has passed. 
+Such impactful moments are often accompanied with significant and sudden increases, or bursts, in message volume and bursts in usage of specific tokens (we refer to such tokens as ``bursty'').
+Where the typical method relies on tracking predefined tokens and identifying points in which those tokens experience bursts, we instead identify these bursty signals across all tokens via machine learning and use their frequency as the primary indicator that a moment of high interest is occurring.
+As mentioned, since many events experience such bursts, we subsume a number of event detection tasks with this generalization.
 
-Corresponding to these brief moments, we define a burst in a token's usage as a sudden increase in the frequency with which that token appears in a data stream, and we refer to such tokens as ``bursty.''
-These bursts need not be symmetric in that a drastic uptick in frequency need not be followed by an equally dramatic fall in usage.
-
-If we let $E$ denote the set of all minutes $t$ in which an event occurs, then the indicator function $\mathbbm{1}_E(t)$ returns a $1$ for all times $t$ in which an event occurs, and $0$ for all other values of $t$. 
+More formally, if we let $E$ denote the set of all minutes $t$ in which an interesting moment occurs, then the indicator function $\mathbbm{1}_E(t)$ returns a $1$ for all times $t$ in which an event occurs, and $0$ for all other values of $t$. 
 We can now define the event detection task as constructing a function that approximates this indicator function $\mathbbm{1}_E(t)$.
 To account for possible lag in experiencing the event, typing out a message about the event, and the message actually posting to a social media server, we include a parameter $\tau$ to control for tolerance of delay.
 This parameter relaxes the task slightly by constructing the set $E'$ where, for all $t \in E$, $t, t+1, t+2, ..., t+\tau \in E'$.
