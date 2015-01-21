@@ -52,12 +52,12 @@ Address \\
 \maketitle
 \begin{abstract}
 \begin{quote}
-This paper introduces a general technique for identifying interesting and compelling moments in social media streams without the need for any domain-specific information or seed keyword lists.
-We leverage machine learning to model temporal patterns around bursts in Twitter's public sample stream and build a classifier to identify tokens experiencing these bursts.
-Since many events are also interesting moments, we are also able to subsume some event detection tasks and achieve a measure of language agnosticism and general flexibility current techniques lack. 
-To demonstrate our approach's potential, we compare a baseline event-detection system with our language-agnostic algorithm in detecting a number of key moments across three major sporting competitions:\ the 2013 World Series, 2014 Super Bowl, and 2014 World Cup.
+This paper introduces a general technique for identifying interesting and compelling moments in social media streams without the need for domain-specific information or seed keywords.
+We leverage machine learning to model temporal patterns around bursts in Twitter's unfiltered public sample stream and build a classifier to identify tokens experiencing these bursts.
+We show our technique performs competitively with existing burst detection techniques while simultaneously providing insight into and detection of unanticipated moments.
+To demonstrate our approach's potential, we compare two baseline event-detection algorithms with our language-agnostic algorithm to detect key moments across three major sporting competitions (2013 World Series, 2014 Super Bowl, and 2014 World Cup).
 Results from this comparison show our method demonstrates similar performance in this sports domain without the need for pre-specified tokens.
-We then go further by applying our sports-based models to the task of identifying earthquakes in Japan and show our method detects large spikes in earthquake-related tokens within two minutes of the actual event.
+We then go further by transferring our sports-based models to the task of identifying earthquakes in Japan and show our method detects large spikes in earthquake-related tokens within two minutes of the actual event.
 \end{quote}
 \end{abstract}
 
@@ -70,16 +70,16 @@ We then go further by applying our sports-based models to the task of identifyin
 \section{Introduction}
 
 Though researchers have presented a multitude of methods for adapting social media streams to informational and news sources for journalists or first responders, many current social media-based event detection systems rely on manually defined keywords to detect interesting events.
-Though straightforward and capable, such approaches are constrained only to those types of events for which they have defined keywords or other specific information, potentially missing impactful but unanticipated events.
+Though straightforward and capable, such approaches are constrained to types of events for which they have prior information, potentially missing impactful but unanticipated events.
 Part of the difficulty in a journalist's job is to identify these unexpected but newsworthy occurrences.
 For instance, one can follow the frequency of words like ``goal'' on Twitter during the 2014 World Cup to detect when goals are scored \cite{Cipriani2014}, but interesting occurrences like penalties or missed goals would be missed.
-One might respond to this weakness by tracking additional penalty-related tokens, but this approach would still be unable to identify \emph{unexpected} moments like Luis Suarez's biting Giorgio Chiellini during the Uruguay-Italy World Cup match; who would have thought to include ``bite'' as a relevant token during that event?
+One might respond to this weakness by tracking additional penalty-related tokens, but this approach would still be unable to identify an \emph{unexpected} moment like Luis Suarez's biting Giorgio Chiellini during the Uruguay-Italy World Cup match; who would have thought to include ``bite'' as a relevant token during that event?
 Furthermore, relying on predefined keywords restricts these systems to those languages represented in the seed keyword set, a significant issue for international events like the World Cup.
 Given the shear volume of social media data (hundreds of thousands of comments, statuses, and photos generated per minute on Facebook alone as of 2012 \cite{Pring2012}), one could instead forgo seed keywords completely and track bursts in overall message volume (as with Vasudevan et al. \cite{vasudevan2013twitter}) and sacrifice semantic information about detected events (as one would need to extract keywords causing such bursts manually).
 In this paper, we propose leveraging machine learning to reap the benefits of both techniques.
 
 To explore this integration, we introduce LABurst (short for language-agnostic burst detection), a general learning method to model the temporal signatures of keyword bursts in social media streams.
-We then use LAburst to track the number of keywords experiencing bursts in a particular moment, which serves as a predictor of an interesting or high-impact occurrence. 
+LAburst then tracks the number of keywords experiencing bursts in a particular moment, which serves as a predictor of an interesting or high-impact occurrence. 
 In contrast to existing work, our approach processes \emph{unfiltered} social media streams, discovers high-impact moments in those streams without prior knowledge of the target events, \emph{and} yields keywords describing these discovered events.
 Illustrating this flexibility is a collection of experiments on Twitter streams surrounding key moments in large sporting competitions and natural disasters.
 These experiments include comparisons between LABurst and two existing burst detection methods: a volume-centric burst detection technique, and a similar technique with a pre-determined set of sports-related keywords.
@@ -97,35 +97,12 @@ This work makes the following contributions:
 \section{Related Work}
 \label{sect:relatedWork}
 
-Though we are focusing on the slightly different problem of identifying ``interesting moments'' in social media streams, we still build on much of the same work as classical event detection, which has fascinated researchers for over twenty years.
-This subfield has evolved to integrate the latest available techniques and data sources, starting from early digital newsprint to blogs and now social media.
-Early stages of this research began in the mid-nineties with the Topic Detection and Tracking (TDT) initiative.
-These programs demonstrated feasibility in detecting new topics from traditional media sources, but as Allan, Papka, and Lavrenko discussed in 1998, these approaches required additional work to see real success \cite{allan1998line}.
-Even in that early work, Allan et al. were already discussing the tradeoffs of using pre-defined keyword sets and event classes when detecting new events.
-%It is also important to note that, at this nascent stage, topic detection and event detection were relatively synonymous.
-
-Though this early research focused primarily on topic detection from newsprint and traditional media sources, Kleinberg's 2002 paper altered the landscape by applying topic detection to non-traditional data sources like his personal email archive and by introducing what appears to be the first real treatment of burst analysis in ``document streams that arrive continuously over time'' rather than  static collections \cite{Kleinberg:2002:BHS:775047.775061}. 
-Despite introducing the streaming context, Kleinberg cast topic detection as a retrospective, state-based optimization problem.
-He then leveraged existing work on hidden Markov models (HMMs) to find sequences of high usage keywords, or bursts, from which he could detect events (and construct complex nested states to develop event hierarchies).
-Kleinberg's examination here laid much of the foundation for the focus on topic bursts that characterized much of the proceeding research in this area.
-
-Following from Kleinberg's work and the increasing size of digital content on the Internet, several new approaches to topic detection emerged.
-Notably, topic detection divided into two distinct tasks: identifying topics in data via algorithms like Latent Dirichlet Allocation (LDA) \cite{blei2003latent} and detecting events from text.
-Our research focuses on events rather than topics, so early event detection work like that from Fung et al. in 2005 is especially interesting \cite{Fung:2005:PFB:1083592.1083616}.
-Fung et al. extended Kleinberg's burst detection scheme by identifying bursty keywords from digital newspapers and clustering these keywords into groups to identify bursty events, which displayed success in identifying trending events in an English-language newspaper from Hong Kong.
-
-%Along with new interest in burst-centric research, another important trend starting around this time was the integration of additional data sources beyond traditional newsprint, specifically blog content.
-%Blogs offered direct insight into the social consciousness in a way that was previously unavailable via traditional media since blogs include a great deal of social information regarding the author.
-%Zhao et al. took advantage of this additional social information in their 2007 work on flow-based event detection from 2007 \cite{Zhao2007}.
-%By integrating this social data with the textual and temporal techniques described above, Zhao et al. were able to identify events with high accuracy in two social datasets: the Enron email dataset and the Dailykos dataset.
-%Similarly, Bansal's group from the University of Toronto developed the Blogscope project to identify trending and bursty keywords by location as well as time across the entire ``blogosphere'' \cite{Bansal:2007:BSO:1325851.1326028,Bansal:2007:BSA:1242572.1242802}.
-
-%\subsection{Event Detection in Microblogs}
-
-Soon after, the research community began experimenting with alternative media sources like blogs, but real gains came when microblogging platforms began their rise in popularity.
+Though LABurst focuses on the slightly different problem of discovering interesting moments in social media streams, our work shares foundations with classical event detection research.
+Identifying key events from the ever-growing body of digital media has fascinated researchers for over twenty years, starting from digital newsprint to blogs and now social media \cite{allan1998line}.
+Early event detection research followed that of Fung et al. in 2005, who built on the burst detection scheme presented by Kleinberg by identifying bursty keywords from digital newspapers and clustering these keywords into groups to identify bursty events \cite{Kleinberg:2002:BHS:775047.775061,Fung:2005:PFB:1083592.1083616}.
+This work succeeded in identifying trending events and showed such detection tasks are feasible.
+Recognizing that newsprint differs substantially from social media both in content and velocity, the research community began experimenting with new social media sources like blogs, but real gains came when microblogging platforms began their rise in popularity.
 These microblogging platforms include Twitter and Sina Weibo and are characterized by constrained post sizes (e.g., Twitter constrains user posts to 140 characters) and broadcasting publicly consumable information.
-Since their rise, a great deal of research has explored how data posted to these networks can be leveraged for social good projects like event detection.
-Much of this work, however, is retrospective in nature and focuses on detecting events after the fact rather than utilizing one of the real advantages in these social networks: unlike newspapers and blogs, these networks produce huge volumes of information that can be processed in \emph{real time}.
 
 One of the most well-known works in detecting events from microblog streams is Sakaki, Okazaki, and Matsuo's 2010 paper on detecting earthquakes in Japan using Twitter \cite{Sakaki:2010:EST:1772690.1772777}.
 Sakaki et al. show that not only can one detect earthquakes on Twitter but also that it can be done simply by tracking frequencies of earthquake-related tokens.
@@ -133,33 +110,28 @@ Surprisingly, this approach can outperform geological earthquake detection tools
 Though this research is limited in that it requires pre-specified tokens and is highly domain- and location-specific (Japan has a high density of Twitter users, so earthquake detection may perform less well in areas with fewer Twitter users), it demonstrates a significant use case and the potential of such applications.
 
 Along with Sakaki et al., 2010 saw two other relevant papers: Lin et al.'s construction of a probabilistic popular event tracker \cite{Lin:2010:PSM:1835804.1835922} and Petrovi\'{c}, Osborne, and Lavrenko's application of locality-sensitive hashing (LSH) for detecting first-story tweets from Twitter streams \cite{Petrovic:2010:SFS:1857999.1858020}.
-Lin's work is interesting for a number of reasons: first, it circumvents the need for language model-based stop word lists by using probabilistic models to discriminate between common and informational tokens.
-Secondly, Lin's integration of social and structural features into the event detection task demonstrated that real performance enhancements can be gained through non-textual features.
-Thirdly, their paper relates well to Kleinberg's initial work on bursty topic detection by illustrating how his state machine approach is a degenerate case of the PET model.
-Like the majority of its contemporary systems, however, PET also requires seeding with a pre-specified list of tokens to guide its event detection and concentrates on retrospective per-day topics and events.
-
-In contrast, Petrovi\'{c} and his colleagues' clustering research in Twitter avoids the need for seed keywords and retrospective analysis by instead focusing on the practical considerations of clustering large streams of data quickly.
-That is, rather than construct a probabilistic mixture model for each token, Petrovi\'{c} focuses on methods for clustering tweets that contain similar tokens into topical clusters.
+Lin's work demonstrated that the integration of non-textual social and structural features into event detection could produce real performance gains.
+Like many contemporary systems, however Lin's models require seeding with pre-specified tokens to guide its event detection and concentrates on retrospective per-day topics and events.
+In contrast, Petrovi\'{c} et al.'s clustering research in Twitter avoids the need for seed keywords and retrospective analysis by instead focusing on the practical considerations of clustering large streams of data quickly.
 While typical clustering algorithms require distance calculations for all pairwise messages, LSH facilitates rapid clustering at the scale necessary to support event detection in Twitter streams by restricting the number of tweets compared to only those within some threshold of similarity.
 Once these clusters are generated, Petrovi\'{c} was able to track their growth over time to determine impact for a given event.
-This research was originally unique in that it was one of the early methods that did not require pre-specified seed tokens for detecting events and has been very influential in the field, resulting in a number of additional publications to demonstrate its utility in breaking news and for high-impact crisis events \cite{osborne2014real,petrovic2013can,6601695}.
-That being said, a key weakness in Petrovi\'{c}'s work is its reliance on semantic similarity between tweets, which limits its ability to operate in mixed-language environments.
+This research was unique in that it was one of the early methods that did not require seed tokens for detecting events and has been very influential, resulting in a number of additional publications to demonstrate its utility in breaking news and for high-impact crisis events \cite{osborne2014real,petrovic2013can,6601695}.
+Petrovi\'{c}'s work and related semantic clustering approaches rely on textual similarity between tweets, which limits its ability to operate in mixed-language environments and differentiates LABurst and its language agnosticism.
 
 Similar to Petrovi\'{c}, Weng and Lee's 2011 paper on EDCoW, short for Event Detection with Clustering of Wavelet-based Signals, is also able to identify events from Twitter without seed keywords \cite{weng2011event}.
 After stringent filtering (removing stop words, common words, and non-English tokens), EDCoW uses wavelet analysis to isolate and identify bursts in token usage as a sliding window advances along the social media stream.
-Highly significant bursts are then cast as a cross-correlation matrix against which a graph partitioning algorithm is run to construct topical clusters from bursty tokens.
-Besides the heavy filtering of the input data, this approach exhibits notable similarities with the language-agnostic method we describe herein with its reliance on bursts to detect event-related tokens; the methods described in Weng and Lee's paper, however, operate in a more retrospective manner, focusing on the level of daily news rather than breaking event detection on which our research focuses.
+Besides the heavy filtering of the input data, this approach exhibits notable similarities with the language-agnostic method we describe herein with its reliance on bursts to detect event-related tokens.
+These methods, however, operate retrospectively, focusing on daily news rather than breaking event detection on which our research focuses.
 Becker, Naaman, and Gravano's 2011 paper on identifying events in Twitter also fall under this label of retrospective analysis, but their findings also demonstrate reasonable performance in identifying events in Twitter by leveraging classification tasks to separate tweets into those on ``real-world events'' versus non-event messages \cite{becker2011beyond-tr,becker2011beyond}.
 Similarly, Diao et al. also employ a retrospective technique to separate tweets into global, event-related topics and personal topics \cite{diao2012finding}.
 
-Beyond these works, several domain-specific research efforts have targeted sporting events specifically\cite{vasudevan2013twitter,Zhao2011,lanagan2011using}.
-Lanagan and Smeaton's work is of particular interest because it relies almost solely on Twitter's per-second message volume \cite{lanagan2011using}.
+Several domain-specific research efforts have also targeted sporting events specifically\cite{vasudevan2013twitter,Zhao2011,lanagan2011using}.
+Lanagan and Smeaton's work is of particular interest because it relies almost solely on detecting bursts in Twitter's per-second message volume \cite{lanagan2011using}.
 Though naive, this frequency approach is able to detect large bursts on Twitter in high-impact events  without reliance on complex linguist analysis and performs well in streaming contexts as little information must be kept in memory.
-Unfortunately, two main disadvantages exist with this technique: first, detecting a burst would provide evidence of an event, but it would be difficult to gain insight into what that event actually was without additional processing.
-Secondly, as described in their paper, a pure volumetric approach is hampered by limitations on Twitter's public stream, which has an upper limit on the number of messages per minute one can capture.
+Detecting such bursts provide evidence of an event, but this approach makes it difficult to gain insight into what that event actually was without additional processing.
+LABurst addresses this potential disadvantage by identifying both the overall burst and the keywords related to that burst.
 
-Finally, the most recent work relevant to our research is the 2013 paper by Xie et al. on TopicSketch \cite{xie2013topicsketch}.
-Like us, TopicSketch's authors seek to perform real-time event detection from Twitter streams ``without pre-defined topical keywords'' by maintaining acceleration features across three levels of granularity: individual token, bigram, and total stream.
+More recently, Xie et al.'s 2013 paper on TopicSketch seeks to perform real-time event detection from Twitter streams ``without pre-defined topical keywords'' by maintaining acceleration features across three levels of granularity: individual token, bigram, and total stream.
 As with Petrovi\'{c}'s use of LSH, Xie et al. leverage ``sketches'' and dimensionality reduction to facilitate event detection and also relies on language-specific similarities.
 Furthermore, Xie et al. focus only on tweets from Singapore rather than the worldwide stream.
 In contrast, our approach is differentiated primarily in its language-agnosticism and its use of the unfiltered stream from Twitter's global network.
@@ -224,6 +196,8 @@ To avoid spurious bursts generated by endogenous network affects, it is worth no
 To capture the dynamics of how a token's usage changes, LABurst extracts a number of temporal features for each token across $k$ windows.
 Each feature is normalized into the range $[0, 1]$ to avoid biases from scale.
 
+{
+\small
 \begin{itemize}
 \item \textbf{Frequency Regression} Given the logarithm of a token's frequency at each window, take the slope of the best-fitting line.
 \item \textbf{Message Frequency Regression} Given the logarithm of the number of messages in which a token appears for each window, take the slope of the best-fitting line.
@@ -237,11 +211,12 @@ Each feature is normalized into the range $[0, 1]$ to avoid biases from scale.
 \item \textbf{TF-PDF} A modified version of TF-IDF called term frequency, proportional document frequency \cite{Bun:2002:TEN:645962.674082}.
 \item \textbf{BursT} Weight using a combination of a given token's actual frequency and expected token frequency \cite{Lee:2011:BDT:2009463.2009531}.
 \end{itemize}
+}
 
 \subsubsection{LABurst's Bursty Token Classification}
 
 LABurst's key component is its ability to differentiate between bursty and non-bursty tokens.
-To make this determination, LABurst integrates these temporal features into feature vectors for each token and processes them using an ensemble of known classification algorithms, specifically support vector machines (SVMs) and random forests (RFs) integrated using AdaBoost \cite{scikit-learn}.
+To make this determination, LABurst integrates these temporal features into feature vectors for each token and processes them using an ensemble of known classification algorithms, specifically support vector machines (SVMs) and random forests (RFs) integrated using AdaBoost.
 Training these burst detection classifiers requires both positive and negative samples of bursty tokens.
 Obtaining positive samples of bursty tokens is relatively straightforward in that we can identify a number of high-impact, real-world events and construct a set of seed tokens that \emph{should} experience bursts along with the event, following the same workflow as many typical seed-based event detection approaches.
 Determining negative samples is more difficult, however, since one cannot know all events occurring around the world at a given moment.
@@ -299,6 +274,7 @@ Table \ref{tab:eventStats} lists sources of events we identified and the number 
 %\label{tab:eventStats}
 %\end{table}
 \begin{table}[htdp]
+\footnotesize
 \caption{Sporting Competition Data}
 \begin{center}
 \begin{tabular}{|p{2in}|c|}
@@ -358,9 +334,9 @@ Since our analysis covers three separate types of sporting competitions, the see
 We avoid separate keyword lists for each sport to provide an even comparison to the general nature of our language-agnostic technique.
 The keywords for which we searched are shown in Table \ref{tab:targetTokens}, and we took the union of these token sets.
 Additionally, the following regular expressions collapsed deliberately misspelled tokens down to their normal counterparts: ``g+o+a+l+'' $\rightarrow$``goal'', ``g+o+l+'' $\rightarrow$``gol'', ``g+o+l+a+z+o+'' $\rightarrow$``golazo'', ``sco+red?'' $\rightarrow$``score''.
-
 %
 \begin{table}[htdp]
+\footnotesize
 \caption{Predefined Seed Tokens}
 \begin{center}
 \begin{tabular}{|p{0.75in}|p{2.0in}|}
@@ -415,6 +391,7 @@ Where possible, for each event (both sporting and earthquake), we extracted twee
 Table \ref{tab:tweetCounts} shows the breakdown of tweets collected per event.
 
 \begin{table}[htdp]
+\footnotesize
 \caption{Per-Event Tweet Counts}
 \begin{center}
 \begin{tabular}{|p{2in}|c|}
@@ -437,6 +414,31 @@ Table \ref{tab:tweetCounts} shows the breakdown of tweets collected per event.
 \label{tab:tweetCounts}
 \end{table}
 
+
+\begin{figure*}[tb]
+\centering
+\begin{subfigure}[b]{0.3\textwidth}
+\centering
+\includegraphics[width=2.1in]{./figures/roc_2013_WorldSeries.png}
+\caption{2013 World Series}
+\label{fig:roc2013WorldSeries}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\textwidth}
+\centering
+\includegraphics[width=2.1in]{./figures/roc_2014_SuperBowl.png}
+\caption{2014 Super Bowl}
+\label{fig:roc2014SuperBowl}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\textwidth}
+\centering
+\includegraphics[width=2.1in]{./figures/roc_2014_WorldCup.png}
+\caption{2014 World Cup}
+\label{fig:roc2014WorldCup}
+\end{subfigure}
+\caption{Per-Sport ROC Curves}
+\label{fig:joinedPerf}
+\end{figure*}
+
 \section{Experimental Results}
 \label{sect:results}
 
@@ -446,7 +448,7 @@ Prior to carrying out the experiments described above, we first had to discern a
 For LABurst's parameters regarding slice size $\delta$, window size $\omega$, and $k$ previous windows, preliminary experimentation yielded good results with the following settings: $\delta = 60$, $\omega = 3$, and $k=10$.
 We also used these $\delta$ and $k$ parameters in both RawBurst and TokenBurst as well.
 
-Regarding LABurst's classifier implementations, we used the Scikit-learn Python package for SVMs and RFs as well as an implementation of the ensemble classifier AdaBoost \cite{scikit-learn}.
+Regarding LABurst's classifier implementations, we used the Scikit-learn Python package for SVMs and RFs as well as an implementation of the ensemble classifier AdaBoost  \footnote{http://scikit-learn.org/}.
 Both SVMs and RFs have tunable parameters to select before integrating into AdaBoost, however, so we employed a grid search strategy to select parameters based on the F1 scores on our training and testing data.
 
 For SVMs, we first had to decide whether to use a traditional linear model or employ a kernel.
@@ -459,6 +461,7 @@ This training procedure yielded the results shown in Table \ref{tab:scores}.
 These two classifiers are then combined using the Scikit-learn's AdaBoost implementation with four estimators.
 
 \begin{table}[htdp]
+\footnotesize
 \caption{Classifier Parameter Scores}
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|}
@@ -484,30 +487,6 @@ From \ref{fig:roc2013WorldSeries}, LABurst clearly dominates RawBurst and exhibi
 During the Super Bowl, RawBurst, TokenBurst, and LABurst achieve an AUC of 0.68, 0.78, and 0.67 respectively, with the difference between RawBurst and LABurst dropping significantly (shown in Figure \ref{fig:roc2014SuperBowl}).
 Unlike the World Series and Super Bowl, however, during the 2014 World Cup, LABurst (AUC=0.70) outperformed both RawBurst (AUC=0.66) and TokenBurst (AUC=0.64), as seen in Figure \ref{fig:roc2014WorldCup}.
 
-\begin{figure*}[htb]
-\centering
-\begin{subfigure}[b]{0.3\textwidth}
-\centering
-\includegraphics[width=2.1in]{./figures/roc_2013_WorldSeries.png}
-\caption{2013 World Series}
-\label{fig:roc2013WorldSeries}
-\end{subfigure}
-\begin{subfigure}[b]{0.3\textwidth}
-\centering
-\includegraphics[width=2.1in]{./figures/roc_2014_SuperBowl.png}
-\caption{2014 Super Bowl}
-\label{fig:roc2014SuperBowl}
-\end{subfigure}
-\begin{subfigure}[b]{0.3\textwidth}
-\centering
-\includegraphics[width=2.1in]{./figures/roc_2014_WorldCup.png}
-\caption{2014 World Cup}
-\label{fig:roc2014WorldCup}
-\end{subfigure}
-\caption{Per-Sport ROC Curves}
-\label{fig:joinedPerf}
-\end{figure*}
-
 \subsection{Composite Results}
 
 To compare comprehensive performance, we look to Figure \ref{fig:rocComprehensive}, which shows ROC curves for all three methods across all three testing events.
@@ -517,26 +496,15 @@ LABurst, on the other hand, has a TPR of 0.7105 and FPR of 0.3518 with a differe
 From these values, we see LABurst achieves a higher true positive rate at the cost of a higher false positive rate.
 Therefore, it seems the answer to \textbf{RQ1} is that, yes, LABurst can be competitive with existing methods.
 
-\begin{figure}[hbtp]
+\begin{figure}[htbp]
 \begin{center}
-\includegraphics[width=2.75in]{./figures/roc_Comp.png}
+\includegraphics[width=2.25in]{./figures/roc_Comp.png}
 \caption{Composite ROC Curves}
 \label{fig:rocComprehensive}
 \end{center}
 \end{figure}
 
-\subsection{Earthquake Detection}
-
-Our second research question (\textbf{RQ2}) seeks to determine whether transferring LABurst's models, as trained on the previously mentioned sporting events, can compete with existing techniques in a different domain.
-
-Figures \ref{fig:2013Japan} and \ref{fig:2014Japan} show the detection curves for both methods for the 2013 and 2014 earthquakes respectively; the red dots indicate the earthquake times as reported by the United States Geological Survey (USGS).
-The left vertical axis for each figure reports the frequency of the ``earthquake'' token, and the right axis shows the number of tokens classified as bursty by LABurst.
-From the TokenBurst curve, one can see the token ``earthquake'' sees a significant increase in usage when the earthquake occurs, and LABurst experiences a similar increase at the same moment for both events.
-It is worth noting that LABurst exhibits bursts prior to the earthquake event, but these peaks \emph{unrelated} to the earthquake event as LABurst does not differentiate between the earthquake and other high-impact events that could be happening on Twitter. 
-In addition, the peak occurring about 50 minutes after the earthquake on 25 October 2013 potentially represents an aftershock event\footnote{http://ds.iris.edu/spud/aftershock/9761021}.
-Given the minimal lag between the LABurst and TokenBurst's detection, we can answer \textbf{RQ2} in the affirmative. 
-
-\begin{figure*}[btp]
+\begin{figure*}[hbtp]
 \centering
 \begin{subfigure}[b]{0.4\textwidth}
 \includegraphics[width=2.25in]{./figures/2013-japan-quake.png}
@@ -552,19 +520,31 @@ Given the minimal lag between the LABurst and TokenBurst's detection, we can ans
 \label{fig:joinedEarthquake}
 \end{figure*}
 
+\subsection{Earthquake Detection}
+
+Our second research question (\textbf{RQ2}) seeks to determine whether transferring LABurst's models, as trained on the previously mentioned sporting events, can compete with existing techniques in a different domain.
+
+Figures \ref{fig:2013Japan} and \ref{fig:2014Japan} show the detection curves for both methods for the 2013 and 2014 earthquakes respectively; the red dots indicate the earthquake times as reported by the United States Geological Survey (USGS).
+The left vertical axis for each figure reports the frequency of the ``earthquake'' token, and the right axis shows the number of tokens classified as bursty by LABurst.
+From the TokenBurst curve, one can see the token ``earthquake'' sees a significant increase in usage when the earthquake occurs, and LABurst experiences a similar increase at the same moment for both events.
+It is worth noting that LABurst exhibits bursts prior to the earthquake event, but these peaks \emph{unrelated} to the earthquake event as LABurst does not differentiate between the earthquake and other high-impact events that could be happening on Twitter. 
+In addition, the peak occurring about 50 minutes after the earthquake on 25 October 2013 potentially represents an aftershock event\footnote{http://ds.iris.edu/spud/aftershock/9761021}.
+Given the minimal lag between the LABurst and TokenBurst's detection, we can answer \textbf{RQ2} in the affirmative. 
+
 One can now ask what tokens we identified as bursting when the earthquakes occurred.
 Many of the tokens are in Japanese, and tokens at the peak of the earthquake events are shown in Table \ref{tab:japanTokens}.
 We also extracted several tweets that contain the highest number of these tokens for the given time period, a selection of which include, \begin{CJK}{UTF8}{\myfont}``地震だあああああああああああああああああああああ,'' ``今回はチート使ってないから地震わからなかった,'' and ``地震だー.'' \end{CJK}
 Google Translate\footnote{http://translate.google.com} translates these tweets as ``Ah ah ah ah ah ah ah ah ah Aa's earthquake,'' ``I did not know earthquake because not using cheat this time,'' and ``Over's earthquake'' respectively.
 %
 \begin{table}[htdp]
+\footnotesize
 \caption{Tokens Classified as Busting During Events}
 \begin{center}
 \begin{tabular}{|p{1.45in} | p{1.45in} |}
 \hline
 \multicolumn{1}{|c|}{\textbf{Match}} & \multicolumn{1}{|c|}{\textbf{Bursty Tokens}} \\ \hline
-Honshu, Japan -- 25 October 2013 & \c{c}dostum, \begin{CJK}{UTF8}{\myfont} 丈, 地, 夫, 怖, 波, 注, 津, 源, 福, 震 \end{CJK} \\ \hline
-Iwaki, Japan -- 11 July 2014 & antojo, comida, sammy, \begin{CJK}{UTF8}{\myfont} び, ゆ, ビビ, 地, 怖, 急, 福, 警, 速, 震 \end{CJK} \\ \hline
+Honshu, Japan -- 25 October 2013 & \c{c}\begin{CJK}{UTF8}{\myfont} 丈, 地, 夫, 怖, 波, 注, 津, 源, 福, 震 \end{CJK} \\ \hline
+Iwaki, Japan -- 11 July 2014 & \begin{CJK}{UTF8}{\myfont} び, ゆ, ビビ, 地, 怖, 急, 福, 警, 速, 震 \end{CJK} \\ \hline
 \end{tabular}
 \end{center}
 \label{tab:japanTokens}
@@ -586,6 +566,7 @@ To explore the tokens generated during these high-profile events, we look to tho
 Table \ref{tab:burstyTokens} shows a selection of events from these matches and a subset of those tokens classified as bursting during the events (one should note the list is not exhaustive owing to formatting and space constraints).
 
 \begin{table}[htdp]
+\footnotesize
 \caption{Tokens Classified as Busting During Events}
 \begin{center}
 \begin{tabular}{|p{0.75in}|p{0.7in}| p{1.45in} |}
@@ -621,7 +602,7 @@ Upon further exploration, tokens present in this peak refer to Argentina's subst
 
 \begin{figure}[hbtp]
 \begin{center}
-\includegraphics[width=2.75in]{./figures/wc0713freq-labeled.png}
+\includegraphics[width=2.25in]{./figures/wc0713freq-labeled.png}
 \caption{Baseline and LA Bursty Frequencies}
 \label{fig:worldCupFreqs}
 \end{center}
