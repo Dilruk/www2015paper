@@ -70,28 +70,28 @@ We then go further by transferring our sports-based models to the task of identi
 \section{Introduction}
 
 Though researchers have presented a multitude of methods for adapting social media streams to informational and news sources for journalists or first responders, many current social media-based event detection systems rely on manually defined keywords to detect interesting events.
-Though straightforward and capable, such approaches are constrained to types of events for which they have prior information, potentially missing impactful but unanticipated events.
-Part of the difficulty in a journalist's job is to identify these unexpected but newsworthy occurrences.
+While straightforward and capable, such approaches are often constrained to events for which they have prior information, potentially missing impactful but \emph{unanticipated} events.
+These unexpected but newsworthy occurrences are often the important stories journalists are paid to find and follow.
 For instance, one can follow the frequency of words like ``goal'' on Twitter during the 2014 World Cup to detect when goals are scored \cite{Cipriani2014}, but interesting occurrences like penalties or missed goals would be missed.
-One might respond to this weakness by tracking additional penalty-related tokens, but this approach would still be unable to identify an \emph{unexpected} moment like Luis Suarez's biting Giorgio Chiellini during the Uruguay-Italy World Cup match; who would have thought to include ``bite'' as a relevant token during that event?
+One might respond to this weakness by tracking additional penalty-related tokens, but this approach would still be unable to identify an unexpected moment like Luis Suarez's biting Giorgio Chiellini during the Uruguay-Italy World Cup match; who would have thought to include ``bite'' as a relevant token during that event?
 Furthermore, relying on predefined keywords restricts these systems to those languages represented in the seed keyword set, a significant issue for international events like the World Cup.
+
 Given the shear volume of social media data (hundreds of thousands of comments, statuses, and photos generated per minute on Facebook alone as of 2012 \cite{Pring2012}), one could instead forgo seed keywords completely and track bursts in overall message volume (as with Vasudevan et al. \cite{vasudevan2013twitter}) and sacrifice semantic information about detected events (as one would need to extract keywords causing such bursts manually).
 In this paper, we propose leveraging machine learning to reap the benefits of both techniques.
 
-To explore this integration, we introduce LABurst (short for language-agnostic burst detection), a general learning method to model the temporal signatures of keyword bursts in social media streams.
-LAburst then tracks the number of keywords experiencing bursts in a particular moment, which serves as a predictor of an interesting or high-impact occurrence. 
-In contrast to existing work, our approach processes \emph{unfiltered} social media streams, discovers high-impact moments in those streams without prior knowledge of the target events, \emph{and} yields keywords describing these discovered events.
-Illustrating this flexibility is a collection of experiments on Twitter streams surrounding key moments in large sporting competitions and natural disasters.
-These experiments include comparisons between LABurst and two existing burst detection methods: a volume-centric burst detection technique, and a similar technique with a pre-determined set of sports-related keywords.
+To explore this integration, we introduce LABurst (short for language-agnostic burst detection), a general learning method to model temporal signatures of keyword bursts in social media streams (Section \ref{sect:model}); these bursts' volumes then indicate an interesting or high-impact occurrence. 
+Contrasting with existing work, our approach processes \emph{unfiltered} social media streams, discovers high-impact moments in those streams without prior knowledge of the target events, \emph{and} yields keywords describing these discovered events.
+Illustrating this flexibility is a collection of experiments on Twitter streams surrounding key moments in large sporting competitions and natural disasters (Section \ref{sect:methods}).
+These experiments compare LABurst to two existing burst detection methods: a volume-centric burst detection technique, and a similar technique with a pre-determined set of sports-related keywords, the results of which (Section \ref{sect:results}) demonstrate LABurst's competitiveness with existing methods.
 
 This work makes the following contributions:
 %
 \begin{itemize}
-\item We propose a feature set and classifier for the language-agnostic discovery of impactful or interesting moments in the Twitter public sample stream. Importantly, our approach does {\it not} require a list of manually-defined keywords as input,
+\item Presents a feature set and classification method for language-agnostic discovery of impactful, unexpected moments in the Twitter public sample stream {\it without} requiring manually-defined keywords as input,
 
-\item We demonstrate our approach's performance is both competitive with existing techniques and more flexible, and
+\item Demonstrates our approach's performance is both competitive with existing techniques and more flexible, and
 
-\item We can transfer our models across disparate domains and still maintain comparable levels of performance to domain-specific systems.
+\item Transfers learned models across disparate domains and while maintaining performance comparable with existing domain-specific systems.
 \end{itemize}
 
 \section{Related Work}
